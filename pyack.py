@@ -95,10 +95,11 @@ class Context(object):
     def print_dict(self, obj, counter=0):
         for key, val in obj.iteritems():
             if isinstance(val, dict):
-                print ' '*counter, key
+                print ' '*counter + self.CONTEXT_COLOUR % key
                 if self.LINES in val:
                     for row in val[self.LINES]:
                         print ' '*(counter+4), row
+                    print
                 self.print_dict(val, counter+4)
             elif isinstance(val, list):
                 #for row in val:
