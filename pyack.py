@@ -3,6 +3,7 @@ import sys
 import re
 import subprocess
 import json
+from argparse import ArgumentParser, FileType
 
 class Context(object):
     # CONSTANTS
@@ -20,16 +21,54 @@ class Context(object):
     context = {}
 
     def __init__(self, args):
-        if len(args) == 3:
-            file_path = args[1]
-            file_line = int(args[2])
+        parser = ArgumentParser(
+                description='Python Grep Tool.',
+                epilog='Written by Nic Roland\nnicroland9@gmail.com\n@nicr9_'
+                )
 
-            self.get_context(file_path, file_line)
+        parser.add_argument(
+                'search_term',
+                default = None,
+                nargs='?',
+                type = str,
+                help = 'Regex to search for'
+                )
+
+        parser.add_argument(
+                '-f',
+                '--file',
+                default = None,
+                type = str,
+                help = 'Restrict search to specific file',
+                dest = 'file_path'
+                )
+
+        parser.add_argument(
+                '-l',
+                '--line',
+                type = int,
+                help = 'Check context of a specific line in the file specified by -f',
+                dest = 'file_line'
+                )
+
+        parser.add_argument(
+                '-s',
+                action = 'store_true',
+                help = "Just print the context (don't display file number/text)",
+                dest = 'summary'
+                )
+
+        config = parser.parse_args(args[1:])
+        print config
+        self.summary = config.summary
+
+        if config.file_line and config.file_path:
+            self.get_context(config.file_path, config.file_line)
             self.print_dict(self.context)
-        elif len(args) == 2:
-            self.grep_for(args[1])
+        elif config.file_path is None and config.file_line is None:
+            self.grep_for(config.search_term)
         else:
-            print self.USAGE
+            parser.print_usage()
 
     def add_context(self, cntx_list):
         """
@@ -105,7 +144,8 @@ class Context(object):
                 print ' '*counter + self.CONTEXT_COLOUR % key
                 if self.LINES in val:
                     for row in val[self.LINES]:
-                        print ' '*(counter+4), row
+                        if not self.summary:
+                            print ' '*(counter+4), row
                     print
                 self.print_dict(val, counter+4)
             elif isinstance(val, list):
@@ -113,7 +153,7 @@ class Context(object):
                  #   print ' '*counter, row
                 pass
             elif isinstance(val, str):
-                print ' '*counter, val
+                    print ' '*counter, val
             else:
                 print "%s type found: %s" % (type(val), val)
 
