@@ -60,9 +60,22 @@ class Context(object):
                 dest = 'summary'
                 )
 
+        parser.add_argument(
+                '-d',
+                action = 'store_true',
+                help = "Display additional information to aid debugging.",
+                dest = 'debug'
+                )
+
         config = parser.parse_args(args[1:])
-        print config
+
+        self.debug = config.debug
         self.summary = config.summary
+
+        if self.debug:
+            config_pretty = {x:y for x, y in config._get_kwargs()}
+            print "=== CLI args ==="
+            print json.dumps(config_pretty, indent=4)
 
         if config.file_line and config.file_path:
             self.get_context(config.file_path, config.file_line)
