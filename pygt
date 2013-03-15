@@ -3,11 +3,12 @@ import sys
 import re
 import subprocess
 import json
-from argparse import ArgumentParser, FileType
+from argparse import ArgumentParser, FileType, RawDescriptionHelpFormatter
 
 class Context(object):
     # CONSTANTS
-    USAGE = """python2.7 %s <file> <line number>""" % __file__
+    DESCRIPTION = 'Python Grep Tool.'
+    EPILOG = 'Author: Nic Roland\nEmail: nicroland9@gmail.com\nTwitter: @nicr9_'
     INDENT_RE = "^(\s*)"
     DEF_CLASS_RE = "^\s*(def|class) (.*?)[(:]"
     CONTEXT_COLOUR = "\033[93m%s\033[0m"
@@ -22,8 +23,9 @@ class Context(object):
 
     def __init__(self, args):
         parser = ArgumentParser(
-                description='Python Grep Tool.',
-                epilog='Written by Nic Roland\nnicroland9@gmail.com\n@nicr9_'
+                formatter_class = RawDescriptionHelpFormatter,
+                description = self.DESCRIPTION,
+                epilog = self.EPILOG
                 )
 
         parser.add_argument(
