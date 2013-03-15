@@ -182,6 +182,9 @@ class Context(object):
                     [self.GREP_TEMPLATE % exp],
                     shell=True
                     )
+            if self.debug:
+                print "=== Grep results ==="
+                print results
         except subprocess.CalledProcessError, e:
             if e.returncode == 1:
                 print "Couldn't find anything matching '%s'" % exp
