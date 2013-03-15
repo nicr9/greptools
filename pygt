@@ -164,10 +164,17 @@ class Context(object):
         Execute a grep command to search for the given expression.
         Then print out the context for each result.
         """
-        results = subprocess.check_output(
-                [self.GREP_TEMPLATE % exp],
-                shell=True
-                )
+        try:
+            results = subprocess.check_output(
+                    [self.GREP_TEMPLATE % exp],
+                    shell=True
+                    )
+        except subprocess.CalledProcessError, e:
+            if e.returncode == 1:
+                print "Couldn't find anything matching '%s'" % exp
+            else:
+                print "Whoops, grep returned errorcode %d" % e.errorcode
+            sys.exit()
 
         for row in results.splitlines(False):
             file_name, file_line = row.split(':')[:2]
