@@ -71,11 +71,12 @@ class Context(object):
 
         self.debug = config.debug
         self.summary = config.summary
+        self._num_found = 0
 
         if self.debug:
             config_pretty = {x:y for x, y in config._get_kwargs()}
             print "=== CLI args ==="
-            print json.dumps(config_pretty, indent=4)
+            print json.dumps(config_pretty, indent=4) + '\n'
 
         if config.file_line and config.file_path:
             self.get_context(config.file_path, config.file_line)
@@ -97,6 +98,7 @@ class Context(object):
         if self.LINES not in pointer:
             pointer[self.LINES] = []
         pointer[self.LINES].append(cntx_list[-1])
+        self._num_found += 1
 
     def get_indent(self, line):
         """
@@ -177,14 +179,17 @@ class Context(object):
         Execute a grep command to search for the given expression.
         Then print out the context for each result.
         """
+        results = []
         try:
-            results = subprocess.check_output(
+            response = subprocess.check_output(
                     [self.GREP_TEMPLATE % exp],
                     shell=True
                     )
+            results = response.splitlines()
+
             if self.debug:
                 print "=== Grep results ==="
-                print results
+                print response, "Total results: %d\n" % len(results)
         except subprocess.CalledProcessError, e:
             if e.returncode == 1:
                 print "Couldn't find anything matching '%s'" % exp
@@ -192,11 +197,14 @@ class Context(object):
                 print "Whoops, grep returned errorcode %d" % e.errorcode
             sys.exit()
 
-        for row in results.splitlines(False):
+        for row in results:
             file_name, file_line = row.split(':')[:2]
 
             self.get_context(file_name, int(file_line))
         self.print_dict(self.context)
+
+        if self.debug:
+            print "Total found: %d" % self._num_found
 
 if __name__ == "__main__":
     x = Context(sys.argv)
