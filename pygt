@@ -41,7 +41,7 @@ class Context(object):
                 '--file',
                 default = None,
                 type = str,
-                help = 'Restrict search to specific file',
+                help = 'Restrict search to specific file, wildcards are not yet supported.',
                 dest = 'file_path'
                 )
 
@@ -74,8 +74,10 @@ class Context(object):
         self._num_found = 0
 
         if self.debug:
-            config_pretty = {x:y for x, y in config._get_kwargs()}
             print "=== CLI args ==="
+            print args, '\n'
+            config_pretty = {x:y for x, y in config._get_kwargs()}
+            print "=== pygt config ==="
             print json.dumps(config_pretty, indent=4) + '\n'
 
         if config.file_line and config.file_path:
