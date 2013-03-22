@@ -88,18 +88,25 @@ class Context(object):
         else:
             parser.print_usage()
 
-    def add_context(self, cntx_list):
+    def _format_line(self, line_number, line_text):
+        return self.LINE_SUM_COLOUR % (line_number, line_text)
+
+    def _add_context(self, file_path, line_number, line_text, cntx_list):
         """
-        Adds a node to the context tree.
+        Adds a line to the context tree.
         """
-        pointer = self.context[cntx_list[0]]
-        for step in cntx_list[1:-1]:
+        # Step through context tree, creating nodes along the way
+        pointer = self.context[file_path]
+        for step in cntx_list:
             if step not in pointer:
                 pointer[step] = {}
             pointer = pointer[step]
         if self.LINES not in pointer:
             pointer[self.LINES] = []
-        pointer[self.LINES].append(cntx_list[-1])
+
+        # Add line_number + line_text to context
+        line_ = self._format_line(line_number, line_text)
+        pointer[self.LINES].append(line_)
         self._num_found += 1
 
     def get_indent(self, line):
@@ -121,7 +128,7 @@ class Context(object):
         if not file_path in self.context:
             self.context[file_path] = {}
 
-        # Get all lines up to and including the line given
+        # Read in all lines up to and including the line given
         lines = []
         with open(file_path) as file_:
             for i, line in enumerate(file_):
@@ -134,7 +141,7 @@ class Context(object):
         # Get indent of specified line
         init_indent = self.get_indent(lines[file_indx])
 
-        results = [self.LINE_SUM_COLOUR % (file_line, lines[file_indx].strip('\n'))]
+        results = []
         for line_no in range(file_indx-1, -1, -1):
             # Ignore empty lines
             if lines[line_no].strip():
@@ -151,11 +158,13 @@ class Context(object):
                             )
                         init_indent = next_indent
 
-        # Each context entry should also contain file path
-        results.append(file_path)
-        results = list(reversed(results))
-
-        self.add_context(results)
+        # Add this entry to context tree
+        self._add_context(
+                file_path,
+                file_line,
+                lines[file_indx].strip('\n'),
+                reversed(results)
+                )
 
     def print_dict(self, obj, counter=0):
         for key, val in obj.iteritems():
