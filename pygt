@@ -13,6 +13,8 @@ class Context(object):
     DEF_CLASS_RE = "^\s*(def|class) (.*?)[(:]"
     CONTEXT_COLOUR = "\033[93m%s\033[0m"
     LINE_SUM_COLOUR = "\033[91m%d:^\033[0m%s\033[91m$\033[0m"
+    CONTEXT_CLEAN = "%s"
+    LINE_SUM_CLEAN = "%d:^%s$"
     TAB = '\t'
     FOUR_SPACES = '    '
     GREP_TEMPLATE = 'grep ./ -Irne "%s" --include="*.py"'
@@ -67,11 +69,21 @@ class Context(object):
                 dest = 'debug'
                 )
 
+        parser.add_argument(
+                '-c',
+                action = 'store_true',
+                help = "Print out results without colours.",
+                dest = 'clean'
+                )
+
         config = parser.parse_args(args[1:])
 
         self.debug = config.debug
         self.summary = config.summary
         self._num_found = 0
+
+        self.context_template = self.CONTEXT_CLEAN if config.clean else self.CONTEXT_COLOUR
+        self.line_sum_template = self.LINE_SUM_CLEAN if config.clean else self.LINE_SUM_COLOUR
 
         if self.debug:
             print "=== CLI args ==="
@@ -89,7 +101,7 @@ class Context(object):
             parser.print_usage()
 
     def _format_line(self, line_number, line_text):
-        return self.LINE_SUM_COLOUR % (line_number, line_text)
+        return self.line_sum_template % (line_number, line_text)
 
     def _add_context(self, file_path, line_number, line_text, cntx_list):
         """
@@ -169,7 +181,7 @@ class Context(object):
     def print_dict(self, obj, counter=0):
         for key, val in obj.iteritems():
             if isinstance(val, dict):
-                print ' '*counter + self.CONTEXT_COLOUR % key
+                print ' '*counter + self.context_template % key
                 if self.LINES in val:
                     for row in val[self.LINES]:
                         if not self.summary:
