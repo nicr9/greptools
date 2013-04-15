@@ -11,79 +11,40 @@ class Context(object):
     EPILOG = 'Author: Nic Roland\nEmail: nicroland9@gmail.com\nTwitter: @nicr9_'
     INDENT_RE = "^(\s*)"
     DEF_CLASS_RE = "^\s*(def|class) (.*?)[(:]"
-    CONTEXT_COLOUR = "\033[93m%s\033[0m"
-    LINE_SUM_COLOUR = "\033[91m%d:^\033[0m%s\033[91m$\033[0m"
-    CONTEXT_CLEAN = "%s"
-    LINE_SUM_CLEAN = "%d:^%s$"
     TAB = '\t'
     FOUR_SPACES = '    '
     GREP_TEMPLATE = 'grep ./ -Irne "%s" --include="*.py"'
     LINES = 'lines'
 
+    # Templates
+    CONTEXT_COLOUR = "\033[93m%s\033[0m"
+    LINE_SUM_COLOUR = "\033[91m%d:^\033[0m%s\033[91m$\033[0m"
+    CONTEXT_CLEAN = "%s"
+    LINE_SUM_CLEAN = "%d:^%s$"
+
+    # Template dicts
+    VAILD_FORMATS = [
+            'colour',
+            'clean'
+            ]
+    LINE_SUM_TEMPS = {
+            'colour': LINE_SUM_COLOUR,
+            'clean': LINE_SUM_CLEAN
+            }
+    CONTEXT_TEMPS = {
+            'colour': CONTEXT_COLOUR,
+            'clean': CONTEXT_CLEAN
+            }
+
     # VARIABLES
     context = {}
 
     def __init__(self, args):
-        parser = ArgumentParser(
-                formatter_class = RawDescriptionHelpFormatter,
-                description = self.DESCRIPTION,
-                epilog = self.EPILOG
-                )
-
-        parser.add_argument(
-                'search_term',
-                default = None,
-                nargs='?',
-                type = str,
-                help = 'Regex to search for'
-                )
-
-        parser.add_argument(
-                '-f',
-                '--file',
-                default = None,
-                type = str,
-                help = 'Restrict search to specific file, wildcards are not yet supported.',
-                dest = 'file_path'
-                )
-
-        parser.add_argument(
-                '-l',
-                '--line',
-                type = int,
-                help = 'Check context of a specific line in the file specified by -f',
-                dest = 'file_line'
-                )
-
-        parser.add_argument(
-                '-s',
-                action = 'store_true',
-                help = "Just print the context (don't display file number/text)",
-                dest = 'summary'
-                )
-
-        parser.add_argument(
-                '-d',
-                action = 'store_true',
-                help = "Display additional information to aid debugging.",
-                dest = 'debug'
-                )
-
-        parser.add_argument(
-                '-c',
-                action = 'store_true',
-                help = "Print out results without colours.",
-                dest = 'clean'
-                )
-
-        config = parser.parse_args(args[1:])
+        config = self.parse_args(args)
 
         self.debug = config.debug
-        self.summary = config.summary
+        self.filter_results = config.filter_results
         self._num_found = 0
-
-        self.context_template = self.CONTEXT_CLEAN if config.clean else self.CONTEXT_COLOUR
-        self.line_sum_template = self.LINE_SUM_CLEAN if config.clean else self.LINE_SUM_COLOUR
 
         if self.debug:
             print "=== CLI args ==="
@@ -92,13 +53,47 @@ class Context(object):
             print "=== pygt config ==="
             print json.dumps(config_pretty, indent=4) + '\n'
 
-        if config.file_line and config.file_path:
-            self.get_context(config.file_path, config.file_line)
-            self.print_dict(self.context)
-        elif config.file_path is None and config.file_line is None:
-            self.grep_for(config.search_term)
+        # Either load results or grep new ones
+        if config.inp_path:
+            self.context = self.load_context(config.inp_path)
         else:
-            parser.print_usage()
+            self.grep_for(config.search_term)
+
+        # Set operations
+        if config.union:
+            self.perform_union(config.union)
+        elif config.join:
+            self.perform_join(config.join)
+
+        # Save to file or configure outp formatting
+        if config.outp_path:
+            self.dump_context(config.outp_path)
+            sys.exit()
+        else:
+            self.set_format(config.outp_format)
+
+        self.print_dict(self.context)
+
+    def load_context(self, path):
+        with open(path, 'r') as inp_file:
+            return json.load(inp_file)
+
+    def dump_context(self, path):
+        with open(path, 'w') as outp_file:
+            flat = json.dumps(self.context, indent=4)
+            outp_file.write(flat)
+
+    def perform_union(self, path):
+        pass
+
+    def perform_join(self, path):
+        pass
+
+    def set_format(self, outp_format):
+        assert outp_format in self.VAILD_FORMATS
+
+        self.line_sum_template = self.LINE_SUM_TEMPS[outp_format]
+        self.context_template = self.CONTEXT_TEMPS[outp_format]
 
     def _format_line(self, line_number, line_text):
         return self.line_sum_template % (line_number, line_text)
@@ -117,8 +112,7 @@ class Context(object):
             pointer[self.LINES] = []
 
         # Add line_number + line_text to context
-        line_ = self._format_line(line_number, line_text)
-        pointer[self.LINES].append(line_)
+        pointer[self.LINES].append((line_number, line_text))
         self._num_found += 1
 
     def get_indent(self, line):
@@ -184,8 +178,8 @@ class Context(object):
                 print ' '*counter + self.context_template % key
                 if self.LINES in val:
                     for row in val[self.LINES]:
-                        if not self.summary:
-                            print ' '*(counter+4), row
+                        processed_row = self._format_line(*row)
+                        print ' '*(counter+4), processed_row
                     print
                 self.print_dict(val, counter+4)
             elif isinstance(val, list):
@@ -224,10 +218,81 @@ class Context(object):
             file_name, file_line = row.split(':')[:2]
 
             self.get_context(file_name, int(file_line))
-        self.print_dict(self.context)
 
         if self.debug:
             print "Total found: %d" % self._num_found
+
+    def parse_args(self, argv):
+        parser = ArgumentParser(
+                formatter_class = RawDescriptionHelpFormatter,
+                description = self.DESCRIPTION,
+                epilog = self.EPILOG
+                )
+
+        parser.add_argument(
+                'search_term',
+                default = None,
+                nargs='?',
+                type = str,
+                help = 'Regex to search for'
+                )
+
+        parser.add_argument(
+                '-f',
+                '--format',
+                default = 'colour',
+                type = str,
+                help = 'Format to display output in',
+                dest = 'outp_format'
+                )
+
+        parser.add_argument(
+                '-o',
+                '--outp',
+                type = str,
+                help = 'Save results to file',
+                dest = 'outp_path',
+                default = None
+                )
+
+        parser.add_argument(
+                '-i',
+                '--inp',
+                type = str,
+                help = 'Load results from file',
+                dest = 'inp_path',
+                default = None
+                )
+
+        parser.add_argument(
+                '-F',
+                help = "Filter resultng lines by regex",
+                dest = 'filter_results',
+                default = None
+                )
+
+        parser.add_argument(
+                '-U',
+                help = "Perform a union with the results in file.",
+                dest = 'union',
+                default = None
+                )
+
+        parser.add_argument(
+                '-J',
+                help = "Perform a join with the results in file.",
+                dest = 'join',
+                default = None
+                )
+
+        parser.add_argument(
+                '-d',
+                action = 'store_true',
+                help = "Display additional information to aid debugging.",
+                dest = 'debug'
+                )
+
+        return parser.parse_args(argv[1:])
 
 if __name__ == "__main__":
     x = Context(sys.argv)
