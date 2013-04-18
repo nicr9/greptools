@@ -7,8 +7,6 @@ from argparse import ArgumentParser, FileType, RawDescriptionHelpFormatter
 
 class Context(object):
     # CONSTANTS
-    DESCRIPTION = 'Python Grep Tool.'
-    EPILOG = 'Author: Nic Roland\nEmail: nicroland9@gmail.com\nTwitter: @nicr9_'
     INDENT_RE = "^(\s*)"
     DEF_CLASS_RE = "^\s*(def|class) (.*?)[(:]"
     TAB = '\t'
@@ -39,19 +37,10 @@ class Context(object):
     # VARIABLES
     context = {}
 
-    def __init__(self, args):
-        config = self.parse_args(args)
-
+    def __init__(self, config, debug=False):
         self.debug = config.debug
         self.filter_results = config.filter_results
         self._num_found = 0
-
-        if self.debug:
-            print "=== CLI args ==="
-            print args, '\n'
-            config_pretty = {x:y for x, y in config._get_kwargs()}
-            print "=== pygt config ==="
-            print json.dumps(config_pretty, indent=4) + '\n'
 
         # Either load results or grep new ones
         if config.inp_path:
@@ -222,6 +211,24 @@ class Context(object):
 
             self.get_context(file_name, int(file_line))
 
+class GrepTools(object):
+    # CONSTANTS
+    DESCRIPTION = 'Python Grep Tool.'
+    EPILOG = 'Author: Nic Roland\nEmail: nicroland9@gmail.com\nTwitter: @nicr9_'
+
+    def __init__(self, args):
+        config = self.parse_args(args)
+        self.debug = config.debug
+
+        if self.debug:
+            print "=== CLI args ==="
+            print args, '\n'
+            config_pretty = {x:y for x, y in config._get_kwargs()}
+            print "=== pygt config ==="
+            print json.dumps(config_pretty, indent=4) + '\n'
+        
+        Context(config, self.debug)
+
     def parse_args(self, argv):
         parser = ArgumentParser(
                 formatter_class = RawDescriptionHelpFormatter,
@@ -295,4 +302,4 @@ class Context(object):
         return parser.parse_args(argv[1:])
 
 if __name__ == "__main__":
-    x = Context(sys.argv)
+    GrepTools(sys.argv)
