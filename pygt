@@ -191,6 +191,9 @@ class Context(object):
             else:
                 print "%s type found: %s" % (type(val), val)
 
+        if self.debug and counter == 0:
+            print "Total found: %d" % self._num_found
+
     def grep_for(self, exp):
         """
         Execute a grep command to search for the given expression.
@@ -218,9 +221,6 @@ class Context(object):
             file_name, file_line = row.split(':')[:2]
 
             self.get_context(file_name, int(file_line))
-
-        if self.debug:
-            print "Total found: %d" % self._num_found
 
     def parse_args(self, argv):
         parser = ArgumentParser(
