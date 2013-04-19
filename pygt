@@ -67,8 +67,8 @@ class Publisher(object):
 
 class Context(object):
     # CONSTANTS
-    INDENT_RE = "^(\s*)"
-    DEF_CLASS_RE = "^\s*(def|class) (.*?)[(:]"
+    INDENT_RE = re.compile("^(\s*)")
+    DEF_CLASS_RE = re.compile("^\s*(def|class) (.*?)[(:]")
     TAB = '\t'
     FOUR_SPACES = '    '
     GREP_TEMPLATE = 'grep ./ -Irne "%s" --include="*.py"'
