@@ -77,37 +77,33 @@ class Context(object):
     # VARIABLES
     context = {}
 
-    def __init__(self, config, debug=False):
+    def __init__(self, config):
+        self.config = config
         self.debug = config.debug
         self.filter_results = config.filter_results
         self._num_found = 0
 
-        # Either load results or grep new ones
-        if config.inp_path:
-            self.context = self.load_context(config.inp_path)
-        else:
-            self.grep_for(config.search_term)
+    @classmethod
+    def from_file(cls, config):
+        temp = cls(config)
+        temp.context = cls.load_context(config.inp_path)
 
-        # Set operations
-        if config.union:
-            self.perform_union(config.union)
-        elif config.join:
-            self.perform_join(config.join)
+        return temp
 
-        # Save to file or configure outp formatting
-        if config.outp_path:
-            self.dump_context(config.outp_path)
-            sys.exit()
-        else:
-            publisher = Publisher(config.outp_format, self.debug)
-            publisher.print_dict(self.context)
+    @classmethod
+    def from_grep(cls, config):
+        temp = cls(config)
+        temp.grep_for(config.search_term)
 
-    def load_context(self, path):
+        return temp
+
+    @staticmethod
+    def load_context(path):
         with open(path, 'r') as inp_file:
             return json.load(inp_file)
 
-    def dump_context(self, path):
-        with open(path, 'w') as outp_file:
+    def dump_context(self):
+        with open(self.config.outp_path, 'w') as outp_file:
             flat = json.dumps(self.context, indent=4)
             outp_file.write(flat)
 
@@ -234,8 +230,26 @@ class GrepTools(object):
             config_pretty = {x:y for x, y in config._get_kwargs()}
             print "=== pygt config ==="
             print json.dumps(config_pretty, indent=4) + '\n'
-        
-        Context(config, self.debug)
+
+        # Either load results or grep new ones
+        if config.inp_path:
+            context = Context.from_file(config)
+        else:
+            context = Context.from_grep(config)
+
+        ## Set operations
+        #if config.union:
+        #    self.perform_union(config.union)
+        #elif config.join:
+        #    self.perform_join(config.join)
+
+        # Save to file or configure outp formatting
+        if config.outp_path:
+            context.dump_context()
+            sys.exit()
+        else:
+            publisher = Publisher(config.outp_format, self.debug)
+            publisher.print_dict(context.context)
 
     def parse_args(self, argv):
         parser = ArgumentParser(
