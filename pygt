@@ -86,7 +86,7 @@ class Context(object):
     @classmethod
     def from_file(cls, config):
         temp = cls(config)
-        temp.context = cls.load_context(config.inp_path)
+        temp.context = cls.load(config.inp_path)
 
         return temp
 
@@ -98,11 +98,11 @@ class Context(object):
         return temp
 
     @staticmethod
-    def load_context(path):
+    def load(path):
         with open(path, 'r') as inp_file:
             return json.load(inp_file)
 
-    def dump_context(self):
+    def dump(self):
         with open(self.config.outp_path, 'w') as outp_file:
             flat = json.dumps(self.context, indent=4)
             outp_file.write(flat)
@@ -113,7 +113,7 @@ class Context(object):
     def perform_join(self, path):
         pass
 
-    def _add_context(self, file_path, line_number, line_text, cntx_list):
+    def append(self, file_path, line_number, line_text, cntx_list):
         """
         Adds a line to the context tree.
         """
@@ -130,7 +130,7 @@ class Context(object):
         pointer[self.LINES].append((line_number, line_text))
         self._num_found += 1
 
-    def get_indent(self, line):
+    def _get_indent(self, line):
         """
         Returns the indentation on a line as a substring.
         """
@@ -160,7 +160,7 @@ class Context(object):
         assert len(lines) == file_line
 
         # Get indent of specified line
-        init_indent = self.get_indent(lines[file_indx])
+        init_indent = self._get_indent(lines[file_indx])
 
         results = []
         for line_no in range(file_indx-1, -1, -1):
@@ -170,7 +170,7 @@ class Context(object):
                 kw_match = re.search(self.DEF_CLASS_RE, lines[line_no])
                 if kw_match:
                     # Get indent of relevant lines
-                    next_indent = self.get_indent(lines[line_no])
+                    next_indent = self._get_indent(lines[line_no])
 
                     # if line has less indentation add to results, change init_indent
                     if len(next_indent) < len(init_indent):
@@ -180,7 +180,7 @@ class Context(object):
                         init_indent = next_indent
 
         # Add this entry to context tree
-        self._add_context(
+        self.append(
                 file_path,
                 file_line,
                 lines[file_indx].strip('\n'),
@@ -245,7 +245,7 @@ class GrepTools(object):
 
         # Save to file or configure outp formatting
         if config.outp_path:
-            context.dump_context()
+            context.dump()
             sys.exit()
         else:
             publisher = Publisher(config.outp_format, self.debug)
