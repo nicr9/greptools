@@ -246,7 +246,6 @@ class GrepTools(object):
         # Save to file or configure outp formatting
         if config.outp_path:
             context.dump()
-            sys.exit()
         else:
             publisher = Publisher(config.outp_format, self.debug)
             publisher.print_dict(context.context)
