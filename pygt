@@ -78,7 +78,7 @@ class Context(object):
     context = {}
 
     def __init__(self, config):
-        self.config = config
+        self.outp_path = config.outp_path
         self.debug = config.debug
         self.filter_results = config.filter_results
         self._num_found = 0
@@ -103,7 +103,7 @@ class Context(object):
             return json.load(inp_file)
 
     def dump(self):
-        with open(self.config.outp_path, 'w') as outp_file:
+        with open(self.outp_path, 'w') as outp_file:
             flat = json.dumps(self.context, indent=4)
             outp_file.write(flat)
 
