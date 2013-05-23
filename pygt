@@ -222,9 +222,8 @@ class GrepTools(object):
 
     def __init__(self, args):
         config = self.parse_args(args)
-        self.debug = config.debug
 
-        if self.debug:
+        if config.debug:
             print "=== CLI args ==="
             print args, '\n'
             config_pretty = {x:y for x, y in config._get_kwargs()}
