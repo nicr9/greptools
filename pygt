@@ -29,9 +29,9 @@ class Publisher(object):
             'clean': CONTEXT_CLEAN
             }
 
-    def __init__(self, outp_format, debug=False):
-        self.set_format(outp_format)
-        self.debug = debug
+    def __init__(self, config):
+        self.set_format(config.outp_format)
+        self.debug = config.debug
 
     def set_format(self, outp_format):
         assert outp_format in self.VAILD_FORMATS
@@ -247,7 +247,7 @@ class GrepTools(object):
         if config.outp_path:
             context.dump()
         else:
-            publisher = Publisher(config.outp_format, self.debug)
+            publisher = Publisher(config)
             publisher.print_dict(context.context)
 
     def parse_args(self, argv):
