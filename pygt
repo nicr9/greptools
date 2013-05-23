@@ -3,7 +3,7 @@ import sys
 import re
 import subprocess
 import json
-from argparse import ArgumentParser, FileType, RawDescriptionHelpFormatter
+from argparse import ArgumentParser, FileType, RawTextHelpFormatter
 
 class Publisher(object):
     # Constants
@@ -16,7 +16,7 @@ class Publisher(object):
     LINE_SUM_CLEAN = "%d:^%s$"
 
     # Template dicts
-    VAILD_FORMATS = [
+    VALID_FORMATS = [
             'colour',
             'clean'
             ]
@@ -34,7 +34,7 @@ class Publisher(object):
         self.debug = config.debug
 
     def set_format(self, outp_format):
-        assert outp_format in self.VAILD_FORMATS
+        assert outp_format in self.VALID_FORMATS
 
         self.line_sum_template = self.LINE_SUM_TEMPS[outp_format]
         self.context_template = self.CONTEXT_TEMPS[outp_format]
@@ -252,9 +252,12 @@ class GrepTools(object):
             publisher = Publisher(config)
             publisher.print_dict(context.context)
 
+    def _arg_desc_list(self, inp):
+        return '\n' + '\n'.join(['- ' + z for z in inp])
+
     def parse_args(self, argv):
         parser = ArgumentParser(
-                formatter_class = RawDescriptionHelpFormatter,
+                formatter_class = RawTextHelpFormatter,
                 description = self.DESCRIPTION,
                 epilog = self.EPILOG
                 )
@@ -272,7 +275,8 @@ class GrepTools(object):
                 '--format',
                 default = 'colour',
                 type = str,
-                help = 'Format to display output in',
+                help = 'Format to display output in:%s' 
+                        % self._arg_desc_list(Publisher.VALID_FORMATS),
                 dest = 'outp_format'
                 )
 
