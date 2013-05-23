@@ -80,7 +80,7 @@ class Context(object):
     def __init__(self, config):
         self.outp_path = config.outp_path
         self.debug = config.debug
-        self.filter_results = config.filter_results
+        self.filter_regex = config.filter_regex
         self._num_found = 0
 
     @classmethod
@@ -211,7 +211,10 @@ class Context(object):
             sys.exit()
 
         for row in results:
-            file_name, file_line = row.split(':')[:2]
+            file_name, file_line, line_text = row.split(':')[:3]
+
+            if self.filter_regex and not re.search(self.filter_regex, line_text):
+                continue
 
             self.get_context(file_name, int(file_line))
 
@@ -294,23 +297,23 @@ class GrepTools(object):
         parser.add_argument(
                 '-F',
                 help = "Filter resultng lines by regex",
-                dest = 'filter_results',
+                dest = 'filter_regex',
                 default = None
                 )
 
-        parser.add_argument(
-                '-U',
-                help = "Perform a union with the results in file.",
-                dest = 'union',
-                default = None
-                )
+        #parser.add_argument(
+        #        '-U',
+        #        help = "Perform a union with the results in file.",
+        #        dest = 'union',
+        #        default = None
+        #        )
 
-        parser.add_argument(
-                '-J',
-                help = "Perform a join with the results in file.",
-                dest = 'join',
-                default = None
-                )
+        #parser.add_argument(
+        #        '-J',
+        #        help = "Perform a join with the results in file.",
+        #        dest = 'join',
+        #        default = None
+        #        )
 
         parser.add_argument(
                 '-d',
