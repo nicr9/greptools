@@ -8,9 +8,9 @@ sudo python2.7 setup.py install
 
 ## About
 
-Pygt is a simple keyword search cli tool similar to `grep` or `ack`. Where it differs is that it lists resulting lines by the method and/or class they belong to.
+`pygt' is a simple keyword search cli tool similar to `grep` or `ack`. Where it differs is that it lists resulting lines by the method and/or class they belong to.
 
-Pygt is specifically for searching Python source code and will only look inside .py files. It initially uses `grep` to perform the actual searching, and for each result it opens the file and reads it to decide which class/function it belongs in based on the indentation of the file. From this it builds a tree of the results and which it can either print out or save to a file.
+`pygt` is specifically for searching Python source code and will only look inside .py files. It initially uses `grep` to perform the actual searching, and for each result it opens the file and reads it to decide which class/function it belongs in based on the indentation of the file. From this it builds a tree of the results and which it can either print out or save to a file.
 
 ## Usage
 
@@ -50,7 +50,7 @@ $ pygt traceback
              276:^            traceback.print_exc()$
 ```
 
-An indepth review of pygt's other features is coming soon, until then checkout `pygt -h`
+An indepth review of `pygt`'s other features is coming soon, until then checkout `pygt -h`
 
 ## Why?
 
