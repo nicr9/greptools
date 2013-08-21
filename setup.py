@@ -6,5 +6,6 @@ setup(
         description='Python Grep Tool',
         author='Nic Roland',
         author_email='nicroland9@gmail.com',
-        scripts = ['pygt']
+        scripts = ['pygt'],
+        long_description=open('README.txt').read(),
         )
