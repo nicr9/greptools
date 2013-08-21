@@ -7,5 +7,5 @@ setup(
         author='Nic Roland',
         author_email='nicroland9@gmail.com',
         scripts = ['pygt'],
-        long_description=open('README.txt').read(),
+        long_description=open('README.md').read(),
         )
