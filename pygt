@@ -3,7 +3,7 @@ import sys
 import re
 import subprocess
 import json
-from argparse import ArgumentParser, FileType, RawTextHelpFormatter
+from argparse import ArgumentParser, RawTextHelpFormatter
 
 class Publisher(object):
     # Constants
@@ -47,8 +47,8 @@ class Publisher(object):
             if isinstance(val, dict):
                 print ' '*counter + self.context_template % key
                 if self.LINES in val:
-                    for row in val[self.LINES]:
-                        processed_row = self._format_line(*row)
+                    for line_num, line_txt in val[self.LINES]:
+                        processed_row = self._format_line(line_num, line_txt)
                         print ' '*(counter+4), processed_row
                     print
                 self.print_dict(val, counter+4)
@@ -57,13 +57,15 @@ class Publisher(object):
                  #   print ' '*counter, row
                 pass
             elif isinstance(val, str):
-                    print ' '*counter, val
+                print ' '*counter, val
             else:
                 print "%s type found: %s" % (type(val), val)
 
         if self.debug and counter == 0:
             #print "Total found: %d" % self._num_found
-            raise Exception('This functionality has been disabled during refactoring')
+            raise Exception(
+                    'This functionality has been disabled during refactoring'
+                    )
 
 class Context(object):
     # CONSTANTS
@@ -172,7 +174,8 @@ class Context(object):
                     # Get indent of relevant lines
                     next_indent = self._get_indent(lines[line_no])
 
-                    # if line has less indentation add to results, change init_indent
+                    # if line has less indentation add to results
+                    # then change init_indent
                     if len(next_indent) < len(init_indent):
                         results.append(
                             ' '.join(kw_match.groups())
