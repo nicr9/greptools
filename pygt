@@ -248,6 +248,10 @@ class GrepTools(object):
         #elif config.join:
         #    self.perform_join(config.join)
 
+        if config.debug:
+            print "=== Results Dict ==="
+            print json.dumps(context.context, indent=4) + '\n'
+
         # Save to file or configure outp formatting
         if config.outp_path:
             context.dump()
