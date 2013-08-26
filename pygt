@@ -53,8 +53,6 @@ class Publisher(object):
                     print
                 self.print_dict(val, counter+4)
             elif isinstance(val, list):
-                #for row in val:
-                 #   print ' '*counter, row
                 pass
             elif isinstance(val, str):
                 print ' '*counter, val
@@ -249,7 +247,7 @@ class GrepTools(object):
         #    self.perform_join(config.join)
 
         if config.debug:
-            print "=== Results Dict ==="
+            print "=== Results dict ==="
             print json.dumps(context.context, indent=4) + '\n'
 
         # Save to file or configure outp formatting
