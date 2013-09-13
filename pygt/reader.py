@@ -1,7 +1,8 @@
 import sys
 import re
 import subprocess
-import json
+
+from pygt.greptree import GrepTree
 
 class Context(object):
     # CONSTANTS
@@ -10,21 +11,17 @@ class Context(object):
     TAB = '\t'
     FOUR_SPACES = '    '
     GREP_TEMPLATE = 'grep ./ -Irne "%s" --include="*.py"'
-    LINES = 'lines'
-
-    # VARIABLES
-    context = {}
 
     def __init__(self, config):
+        self.tree = GrepTree()
         self.outp_path = config.outp_path
         self.debug = config.debug
         self.filter_regex = config.filter_regex
-        self._num_found = 0
 
     @classmethod
     def from_file(cls, config):
         temp = cls(config)
-        temp.context = cls.load(config.inp_path)
+        temp.tree = GrepTree.load(config.inp_path)
 
         return temp
 
@@ -35,38 +32,11 @@ class Context(object):
 
         return temp
 
-    @staticmethod
-    def load(path):
-        with open(path, 'r') as inp_file:
-            return json.load(inp_file)
-
-    def dump(self):
-        with open(self.outp_path, 'w') as outp_file:
-            flat = json.dumps(self.context, indent=4)
-            outp_file.write(flat)
-
     def perform_union(self, path):
         pass
 
     def perform_join(self, path):
         pass
-
-    def append(self, file_path, line_number, line_text, cntx_list):
-        """
-        Adds a line to the context tree.
-        """
-        # Step through context tree, creating nodes along the way
-        pointer = self.context[file_path]
-        for step in cntx_list:
-            if step not in pointer:
-                pointer[step] = {}
-            pointer = pointer[step]
-        if self.LINES not in pointer:
-            pointer[self.LINES] = []
-
-        # Add line_number + line_text to context
-        pointer[self.LINES].append((line_number, line_text))
-        self._num_found += 1
 
     def _get_indent(self, line):
         """
@@ -81,11 +51,11 @@ class Context(object):
         """
         Given the file path and the line number, determine the context of that line.
         """
+        # Zero-based index for file line number
         file_indx = file_line - 1
 
-        # Add file path node to context
-        if not file_path in self.context:
-            self.context[file_path] = {}
+        # Create a branch in the tree for this file
+        self.tree.touch(file_path)
 
         # Read in all lines up to and including the line given
         lines = []
@@ -118,7 +88,7 @@ class Context(object):
                         init_indent = next_indent
 
         # Add this entry to context tree
-        self.append(
+        self.tree.append(
                 file_path,
                 file_line,
                 lines[file_indx].strip('\n'),

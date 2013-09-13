@@ -33,12 +33,12 @@ class GrepTools(object):
         #elif config.join:
         #    self.perform_join(config.join)
 
-        # Save to file or configure outp formatting
+        # Save to file or push to stdout
         if config.outp_path:
-            context.dump()
+            context.tree.dump(outp_path)
         else:
             publisher = Publisher(config)
-            publisher.print_dict(context.context)
+            publisher.print_dict(context.tree.data)
 
     def _arg_desc_list(self, inp):
         return '\n' + '\n'.join(['- ' + z for z in inp])
