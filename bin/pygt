@@ -4,7 +4,7 @@ import json
 from argparse import ArgumentParser, FileType, RawTextHelpFormatter
 
 from pygt.publisher import Publisher
-from pygt.reader import Context
+from pygt.reader import PythonReader
 
 class GrepTools(object):
     # CONSTANTS
@@ -23,9 +23,9 @@ class GrepTools(object):
 
         # Either load results or grep new ones
         if config.inp_path:
-            context = Context.from_file(config)
+            context = PythonReader.from_file(config)
         else:
-            context = Context.from_grep(config)
+            context = PythonReader.from_grep(config)
 
         ## Set operations
         #if config.union:

@@ -4,13 +4,9 @@ import subprocess
 
 from pygt.greptree import GrepTree
 
-class Context(object):
-    # CONSTANTS
-    INDENT_RE = re.compile("^(\s*)")
-    DEF_CLASS_RE = re.compile("^\s*(def|class) (.*?)[(:]")
-    TAB = '\t'
-    FOUR_SPACES = '    '
-    GREP_TEMPLATE = 'grep ./ -Irne "%s" --include="*.py"'
+class BaseReader(object):
+    GREP_TEMPLATE = 'grep ./ -Irne "%s" %s'
+    INCLUDES_TEMPLATE = '--include="%s"'
 
     def __init__(self, config):
         self.tree = GrepTree()
@@ -37,6 +33,49 @@ class Context(object):
 
     def perform_join(self, path):
         pass
+
+    def grep_for(self, exp):
+        """
+        Execute a grep command to search for the given expression.
+        Then print out the context for each result.
+        """
+        results = []
+        try:
+            response = subprocess.check_output(
+                    [self._grep_cmd(exp, self.FILE_PATTERNS)],
+                    shell=True
+                    )
+            results = response.splitlines()
+
+            if self.debug:
+                print "=== Grep results ==="
+                print response, "Total results: %d\n" % len(results)
+        except subprocess.CalledProcessError, e:
+            if e.returncode == 1:
+                print "Couldn't find anything matching '%s'" % exp
+            else:
+                print "Whoops, grep returned errorcode %d" % e.errorcode
+            sys.exit()
+
+        for row in results:
+            file_name, file_line, line_text = row.split(':')[:3]
+
+            if self.filter_regex and not re.search(self.filter_regex, line_text):
+                continue
+
+            self.get_context(file_name, int(file_line))
+
+    def _grep_cmd(self, exp, file_patterns):
+        inclds = ' '.join([self.INCLUDES_TEMPLATE % z for z in file_patterns])
+        return self.GREP_TEMPLATE % (exp, inclds)
+
+class PythonReader(BaseReader):
+    # CONSTANTS
+    INDENT_RE = re.compile("^(\s*)")
+    DEF_CLASS_RE = re.compile("^\s*(def|class) (.*?)[(:]")
+    TAB = '\t'
+    FOUR_SPACES = '    '
+    FILE_PATTERNS = ['*.py']
 
     def _get_indent(self, line):
         """
@@ -94,34 +133,3 @@ class Context(object):
                 lines[file_indx].strip('\n'),
                 reversed(results)
                 )
-
-    def grep_for(self, exp):
-        """
-        Execute a grep command to search for the given expression.
-        Then print out the context for each result.
-        """
-        results = []
-        try:
-            response = subprocess.check_output(
-                    [self.GREP_TEMPLATE % exp],
-                    shell=True
-                    )
-            results = response.splitlines()
-
-            if self.debug:
-                print "=== Grep results ==="
-                print response, "Total results: %d\n" % len(results)
-        except subprocess.CalledProcessError, e:
-            if e.returncode == 1:
-                print "Couldn't find anything matching '%s'" % exp
-            else:
-                print "Whoops, grep returned errorcode %d" % e.errorcode
-            sys.exit()
-
-        for row in results:
-            file_name, file_line, line_text = row.split(':')[:3]
-
-            if self.filter_regex and not re.search(self.filter_regex, line_text):
-                continue
-
-            self.get_context(file_name, int(file_line))
