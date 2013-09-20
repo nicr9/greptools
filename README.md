@@ -58,6 +58,6 @@ I've found while `grep` can be very useful it sometimes spits out a lot of resul
 
 ## Author
 
-Name: Nic Roland
-Twitter: @nicr9_
+Name: Nic Roland<br>
+Twitter: @nicr9_<br>
 email: nicroland9@gmail.com
