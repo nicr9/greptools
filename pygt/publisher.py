@@ -35,25 +35,25 @@ class Publisher(object):
     def _format_line(self, line_number, line_text):
         return self.line_sum_template % (line_number, line_text)
 
-    def print_dict(self, obj, counter=0):
-        for key, val in obj.iteritems():
-            if isinstance(val, dict):
-                print ' '*counter + self.context_template % key
-                if self.LINES in val:
-                    for row in val[self.LINES]:
-                        processed_row = self._format_line(*row)
-                        print ' '*(counter+4), processed_row
-                    print
-                self.print_dict(val, counter+4)
-            elif isinstance(val, list):
-                #for row in val:
-                 #   print ' '*counter, row
-                pass
-            elif isinstance(val, str):
-                    print ' '*counter, val
-            else:
-                print "%s type found: %s" % (type(val), val)
+    def print_tree(self, tree):
+        def _print(data, counter=0):
+            for key, val in data.iteritems():
+                if isinstance(val, dict):
+                    print ' '*counter + self.context_template % key
+                    if self.LINES in val:
+                        for row in val[self.LINES]:
+                            processed_row = self._format_line(*row)
+                            print ' '*(counter+4), processed_row
+                        print
+                    _print(val, counter+4)
+                elif isinstance(val, list):
+                    pass
+                elif isinstance(val, str):
+                        print ' '*counter, val
+                else:
+                    print "%s type found: %s" % (type(val), val)
 
-        if self.debug and counter == 0:
-            #print "Total found: %d" % self._num_found
-            raise Exception('This functionality has been disabled during refactoring')
+        _print(tree.data)
+
+        if self.debug:
+            print "Total found: %d" % tree._count

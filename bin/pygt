@@ -23,9 +23,9 @@ class GrepTools(object):
 
         # Either load results or grep new ones
         if config.inp_path:
-            context = PythonReader.from_file(config)
+            reader = PythonReader.from_file(config)
         else:
-            context = PythonReader.from_grep(config)
+            reader = PythonReader.from_grep(config)
 
         ## Set operations
         #if config.union:
@@ -35,10 +35,10 @@ class GrepTools(object):
 
         # Save to file or push to stdout
         if config.outp_path:
-            context.tree.dump(outp_path)
+            reader.tree.dump(outp_path)
         else:
             publisher = Publisher(config)
-            publisher.print_dict(context.tree.data)
+            publisher.print_tree(reader.tree)
 
     def _arg_desc_list(self, inp):
         return '\n' + '\n'.join(['- ' + z for z in inp])
