@@ -76,6 +76,7 @@ class PythonReader(BaseReader):
     TAB = '\t'
     FOUR_SPACES = '    '
     FILE_PATTERNS = ['*.py']
+    TYPE = 'Python'
 
     def _get_indent(self, line):
         """
