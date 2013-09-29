@@ -4,6 +4,9 @@ from argparse import ArgumentParser, FileType, RawTextHelpFormatter
 
 from pygt.publisher import Publisher
 
+def bullet_list(inp):
+    return '\n' + '\n'.join(['- ' + z for z in inp])
+
 class GrepTools(object):
     # CONSTANTS
     DESCRIPTION = '%s Grep Tool.'
@@ -40,9 +43,6 @@ class GrepTools(object):
             publisher = Publisher(config)
             publisher.print_tree(reader.tree)
 
-    def _arg_desc_list(self, inp):
-        return '\n' + '\n'.join(['- ' + z for z in inp])
-
     def parse_args(self, argv):
         parser = ArgumentParser(
                 formatter_class = RawTextHelpFormatter,
@@ -64,7 +64,7 @@ class GrepTools(object):
                 default = 'colour',
                 type = str,
                 help = 'Format to display output in:%s' 
-                        % self._arg_desc_list(Publisher.VALID_FORMATS),
+                        % bullet_list(Publisher.VALID_FORMATS),
                 dest = 'outp_format'
                 )
 
