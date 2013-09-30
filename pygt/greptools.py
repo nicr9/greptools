@@ -1,6 +1,6 @@
 import sys
 import json
-from argparse import ArgumentParser, FileType, RawTextHelpFormatter
+from argparse import ArgumentParser, RawTextHelpFormatter
 
 from pygt.publisher import Publisher
 

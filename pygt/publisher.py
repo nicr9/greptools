@@ -41,15 +41,15 @@ class Publisher(object):
                 if isinstance(val, dict):
                     print ' '*counter + self.context_template % key
                     if self.LINES in val:
-                        for row in val[self.LINES]:
-                            processed_row = self._format_line(*row)
-                            print ' '*(counter+4), processed_row
+                        for line_num, line_txt in val[self.LINES]:
+                            processed = self._format_line(line_num, line_txt)
+                            print ' '*(counter+4), processed
                         print
                     _print(val, counter+4)
                 elif isinstance(val, list):
                     pass
                 elif isinstance(val, str):
-                        print ' '*counter, val
+                    print ' '*counter, val
                 else:
                     print "%s type found: %s" % (type(val), val)
 
