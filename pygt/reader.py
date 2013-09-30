@@ -120,7 +120,8 @@ class PythonReader(BaseReader):
                     # Get indent of relevant lines
                     next_indent = self._get_indent(lines[line_no])
 
-                    # if line has less indentation add to results, change init_indent
+                    # if line has less indentation add to results
+                    # then change init_indent
                     if len(next_indent) < len(init_indent):
                         results.append(
                             ' '.join(kw_match.groups())

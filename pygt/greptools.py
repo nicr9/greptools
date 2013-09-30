@@ -36,6 +36,11 @@ class GrepTools(object):
         #elif config.join:
         #    self.perform_join(config.join)
 
+        # TODO
+        if config.debug:
+            print "=== Results dict ==="
+            print json.dumps(context.context, indent=4) + '\n'
+
         # Save to file or push to stdout
         if config.outp_path:
             reader.tree.dump(outp_path)
