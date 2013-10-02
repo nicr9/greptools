@@ -30,7 +30,10 @@ class GrepTools(object):
 
         # Either load results from pipe or grep new ones
         if sys.stdin.isatty():
-            reader = reader_cls.from_grep(config)
+            if config.search_term is None:
+                sys.exit()
+            else:
+                reader = reader_cls.from_grep(config)
         else:
             reader = reader_cls.from_pipe(config)
 
