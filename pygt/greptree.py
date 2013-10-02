@@ -9,14 +9,22 @@ class GrepTree(object):
         self._count = 0
 
     @classmethod
-    def load(cls, path):
+    def load(cls, inp_file):
+        return cls(json.load(inp_file))
+
+    @classmethod
+    def load_path(cls, path):
         with open(path, 'r') as inp_file:
             return cls(json.load(inp_file))
 
-    def dump(self, path):
+    def dump_to_path(self, path):
         with open(path, 'w') as outp_file:
-            flat = json.dumps(self.context, indent=4)
+            flat = json.dumps(self.data, indent=4)
             outp_file.write(flat)
+
+    def dump(self, outp_file):
+        flat = json.dumps(self.data, indent=4)
+        outp_file.write(flat)
 
     def touch(self, file_path):
         # Add file path node to tree

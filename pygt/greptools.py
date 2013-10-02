@@ -17,6 +17,10 @@ class GrepTools(object):
 
         config = self.parse_args(args)
 
+        # Disable config.debug if stdout is a pipe
+        if not sys.stdout.isatty():
+            config.debug = False
+
         if config.debug:
             print "=== CLI args ==="
             print args, '\n'
@@ -24,29 +28,30 @@ class GrepTools(object):
             print "=== pygt config ==="
             print json.dumps(config_pretty, indent=4) + '\n'
 
-        # Either load results or grep new ones
-        if config.inp_path:
-            reader = reader_cls.from_file(config)
-        else:
+        # Either load results from pipe or grep new ones
+        if sys.stdin.isatty():
             reader = reader_cls.from_grep(config)
+        else:
+            reader = reader_cls.from_pipe(config)
 
         ## Set operations
+        #if config.inter:
+        #    self.perform_iter(config.inter)
         #if config.union:
         #    self.perform_union(config.union)
         #elif config.join:
         #    self.perform_join(config.join)
 
-        # TODO
         if config.debug:
             print "=== Results dict ==="
-            print json.dumps(context.context, indent=4) + '\n'
+            print json.dumps(reader.tree.data, indent=4) + '\n'
 
-        # Save to file or push to stdout
-        if config.outp_path:
-            reader.tree.dump(outp_path)
-        else:
+        # Push to stdout or dump tree to pipe
+        if sys.stdout.isatty():
             publisher = Publisher(config)
             publisher.print_tree(reader.tree)
+        else:
+            reader.tree.dump(sys.stdout)
 
     def parse_args(self, argv):
         parser = ArgumentParser(
@@ -73,30 +78,12 @@ class GrepTools(object):
                 dest = 'outp_format'
                 )
 
-        parser.add_argument(
-                '-o',
-                '--outp',
-                type = str,
-                help = 'Save results to file',
-                dest = 'outp_path',
-                default = None
-                )
-
-        parser.add_argument(
-                '-i',
-                '--inp',
-                type = str,
-                help = 'Load results from file',
-                dest = 'inp_path',
-                default = None
-                )
-
-        parser.add_argument(
-                '-F',
-                help = "Filter resultng lines by regex",
-                dest = 'filter_regex',
-                default = None
-                )
+        #parser.add_argument(
+        #        '-i',
+        #        help = "Intersection.",
+        #        dest = 'inter',
+        #        default = None
+        #        )
 
         #parser.add_argument(
         #        '-U',
