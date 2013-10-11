@@ -31,7 +31,13 @@ class BaseReader(object):
     def perform_union(self, path):
         pass
 
-    def perform_join(self, path):
+    def perform_diff(self, path):
+        pass
+
+    def perform_exclude(self, path):
+        pass
+
+    def perform_inter(self, path):
         pass
 
     def grep_for(self, exp):

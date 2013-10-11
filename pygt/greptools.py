@@ -32,9 +32,13 @@ class GrepTools(object):
 
         ## Set operations
         #if config.union:
-        #    self.perform_union(config.union)
+        #    reader.perform_union()
         #elif config.join:
-        #    self.perform_join(config.join)
+        #    reader.perform_diff()
+        #elif config.exclude:
+        #    reader.perform_exclude()
+        #else:
+        #    reader.perform_inter()
 
         # TODO
         if config.debug:
