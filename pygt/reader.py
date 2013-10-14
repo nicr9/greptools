@@ -10,14 +10,12 @@ class BaseReader(object):
 
     def __init__(self, config):
         self.tree = GrepTree()
-        self.outp_path = config.outp_path
         self.debug = config.debug
-        self.filter_regex = config.filter_regex
 
     @classmethod
-    def from_file(cls, config):
+    def from_file(cls, config, path):
         temp = cls(config)
-        temp.tree = GrepTree.load(config.inp_path)
+        temp.tree = GrepTree.load_path(path)
 
         return temp
 
@@ -25,6 +23,13 @@ class BaseReader(object):
     def from_grep(cls, config):
         temp = cls(config)
         temp.grep_for(config.search_term)
+
+        return temp
+
+    @classmethod
+    def from_pipe(cls, config):
+        temp = cls(config)
+        temp.tree = GrepTree.load(sys.stdin)
 
         return temp
 
@@ -43,7 +48,7 @@ class BaseReader(object):
     def grep_for(self, exp):
         """
         Execute a grep command to search for the given expression.
-        Then print out the context for each result.
+        Then add each result to self.tree.
         """
         results = []
         try:
@@ -65,9 +70,6 @@ class BaseReader(object):
 
         for row in results:
             file_name, file_line, line_text = row.split(':')[:3]
-
-            if self.filter_regex and not re.search(self.filter_regex, line_text):
-                continue
 
             self.get_context(file_name, int(file_line))
 
