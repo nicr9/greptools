@@ -72,11 +72,14 @@ class BaseReader(object):
 
         return results
 
-    def add_to_tree(self, results):
+    def add_to_tree(self, results, tree=None):
+        if tree is None:
+            tree = self.tree
+
         for row in results:
             file_name, file_line, line_text = row.split(':')[:3]
 
-            self.get_context(file_name, int(file_line))
+            self.get_context(file_name, int(file_line), tree)
 
     def _grep_cmd(self, exp, file_patterns):
         inclds = ' '.join([self.INCLUDES_TEMPLATE % z for z in file_patterns])
@@ -100,15 +103,18 @@ class PythonReader(BaseReader):
 
         return re.sub(self.TAB, self.FOUR_SPACES, indent)
 
-    def get_context(self, file_path, file_line):
+    def get_context(self, file_path, file_line, tree=None):
         """
         Given the file path and the line number, determine the context of that line.
         """
         # Zero-based index for file line number
         file_indx = file_line - 1
 
+        if tree is None:
+            tree = self.tree
+
         # Create a branch in the tree for this file
-        self.tree.touch(file_path)
+        tree.touch(file_path) #TODO:
 
         # Read in all lines up to and including the line given
         lines = []
@@ -142,7 +148,7 @@ class PythonReader(BaseReader):
                         init_indent = next_indent
 
         # Add this entry to context tree
-        self.tree.append(
+        tree.append(
                 file_path,
                 file_line,
                 lines[file_indx].strip('\n'),
