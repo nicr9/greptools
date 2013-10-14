@@ -37,17 +37,15 @@ class GrepTools(object):
         else:
             reader = reader_cls.from_pipe(config)
 
-        ## Set operations
-        #if config.inter:
-        #    self.perform_iter(config.inter)
-        #if config.union:
-        #    reader.perform_union()
-        #elif config.join:
-        #    reader.perform_diff()
-        #elif config.exclude:
-        #    reader.perform_exclude()
-        #else:
-        #    reader.perform_inter()
+            ## Set operations
+            #if config.union:
+            #    reader.perform_union()
+            #elif config.join:
+            #    reader.perform_diff()
+            #elif config.exclude:
+            #    reader.perform_exclude()
+            #else:
+            #    reader.perform_inter()
 
         if config.debug:
             print "=== Results dict ==="
