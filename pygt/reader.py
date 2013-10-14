@@ -22,7 +22,8 @@ class BaseReader(object):
     @classmethod
     def from_grep(cls, config):
         temp = cls(config)
-        temp.grep_for(config.search_term)
+        gresults = temp.grep_for(config.search_term)
+        temp.add_to_tree(gresults)
 
         return temp
 
@@ -41,6 +42,7 @@ class BaseReader(object):
 
     def perform_exclude(self, path):
         pass
+
 
     def perform_inter(self, path):
         pass
@@ -68,6 +70,9 @@ class BaseReader(object):
                 print "Whoops, grep returned errorcode %d" % e.errorcode
             sys.exit()
 
+        return results
+
+    def add_to_tree(self, results):
         for row in results:
             file_name, file_line, line_text = row.split(':')[:3]
 
