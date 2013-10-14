@@ -73,7 +73,35 @@ class GrepTools(object):
                 help = 'Regex to search for'
                 )
 
-        parser.add_argument(
+        #set_ops = parser.add_argument_group(
+        #        "set operations",
+        #        "Used when piping one set of results into an other."
+        #        )
+
+        #set_ops.add_argument(
+        #        '-D',
+        #        action = 'store_true',
+        #        help = "Results from this search or those piped in (exclusive).",
+        #        dest = 'diff',
+        #        )
+
+        #set_ops.add_argument(
+        #        '-U',
+        #        action = 'store_true',
+        #        help = "Add the results of this search to those piped in.",
+        #        dest = 'union',
+        #        )
+
+        #set_ops.add_argument(
+        #        '-E',
+        #        action = 'store_true',
+        #        help = "Filter results from those piped in.",
+        #        dest = 'exclude',
+        #        )
+
+        outp_ops = parser.add_argument_group("output")
+
+        outp_ops.add_argument(
                 '-f',
                 '--format',
                 default = 'colour',
@@ -83,28 +111,7 @@ class GrepTools(object):
                 dest = 'outp_format'
                 )
 
-        #parser.add_argument(
-        #        '-i',
-        #        help = "Intersection.",
-        #        dest = 'inter',
-        #        default = None
-        #        )
-
-        #parser.add_argument(
-        #        '-U',
-        #        help = "Perform a union with the results in file.",
-        #        dest = 'union',
-        #        default = None
-        #        )
-
-        #parser.add_argument(
-        #        '-J',
-        #        help = "Perform a join with the results in file.",
-        #        dest = 'join',
-        #        default = None
-        #        )
-
-        parser.add_argument(
+        outp_ops.add_argument(
                 '-d',
                 action = 'store_true',
                 help = "Display additional information to aid debugging.",
