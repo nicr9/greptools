@@ -39,13 +39,13 @@ class GrepTools(object):
 
             ## Set operations
             #if config.union:
-            #    reader.perform_union()
+            #    reader.union()
             #elif config.join:
-            #    reader.perform_diff()
+            #    reader.diff()
             #elif config.exclude:
-            #    reader.perform_exclude()
+            #    reader.exclude()
             #else:
-            #    reader.perform_inter()
+            #    reader.inter()
 
         if config.debug:
             print "=== Results dict ==="

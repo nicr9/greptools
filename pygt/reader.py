@@ -22,8 +22,7 @@ class BaseReader(object):
     @classmethod
     def from_grep(cls, config):
         temp = cls(config)
-        gresults = temp.grep_for(config.search_term)
-        temp.add_to_tree(gresults)
+        temp.tree = temp.build_tree(config.search_term)
 
         return temp
 
@@ -34,17 +33,42 @@ class BaseReader(object):
 
         return temp
 
-    def perform_union(self, path):
+    def build_tree(self, query):
+        # Grep for expresion
+        results = self.grep_for(query)
+
+        # Create a temp tree and add all results to tree
+        tree = GrepTree()
+        self.add_to_tree(results, tree)
+
+        return tree
+
+    def union(self):
+        tree = self.build_tree(self.config.search_term)
+        self._perform_union(tree)
+
+    def diff(self):
+        tree = self.build_tree(self.config.search_term)
+        self._perform_diff(tree)
+
+    def exclude(self):
+        tree = self.build_tree(self.config.search_term)
+        self._perform_exclude(tree)
+
+    def inter(self):
+        tree = self.build_tree(self.config.search_term)
+        self._perform_inter(tree)
+
+    def _perform_union(self, tree):
         pass
 
-    def perform_diff(self, path):
+    def _perform_diff(self, tree):
         pass
 
-    def perform_exclude(self, path):
+    def _perform_exclude(self, tree):
         pass
 
-
-    def perform_inter(self, path):
+    def _perform_inter(self, tree):
         pass
 
     def grep_for(self, exp):
