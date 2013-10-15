@@ -10,6 +10,7 @@ class BaseReader(object):
 
     def __init__(self, config):
         self.tree = GrepTree()
+        self.config = config
         self.debug = config.debug
 
     @classmethod
@@ -69,7 +70,31 @@ class BaseReader(object):
         pass
 
     def _perform_inter(self, tree):
-        pass
+        # Using a closure as a counter is difficult so we'll sum a list instead
+        count = []
+
+        def _pi(a, b):
+            a_nodes = set(a.keys())
+            b_nodes = set(b.keys())
+
+            floor = {}
+            for node in a_nodes & b_nodes:
+                if node == 'lines':
+                    a_set = set(tuple(z) for z in a[node])
+                    b_set = set(tuple(z) for z in b[node])
+                    temp = list(a_set & b_set)
+                    count.append(len(temp))
+                    if temp != []:
+                        floor[node] = temp
+                else:
+                    temp = _pi(a[node], b[node])
+                    if temp != {}:
+                        floor[node] = temp
+
+            return floor
+
+        self.tree.data = _pi(self.tree.data, tree.data)
+        self.tree._count = sum(count)
 
     def grep_for(self, exp):
         """
