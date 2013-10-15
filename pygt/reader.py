@@ -4,6 +4,17 @@ import subprocess
 
 from pygt.greptree import GrepTree
 
+# TODO: Considder moving this to GrepTree module
+def count_lines(tree):
+    count = 0
+    for key, val in tree.iteritems():
+        if key == 'lines':
+            count += len(val)
+        else:
+            count += count_lines(val)
+
+    return count
+
 class BaseReader(object):
     GREP_TEMPLATE = 'grep ./ -Irne "%s" %s'
     INCLUDES_TEMPLATE = '--include="%s"'
@@ -44,6 +55,8 @@ class BaseReader(object):
 
         return tree
 
+    # TODO: The methods below should print additional debug info of the comparison tree
+
     def union(self):
         tree = self.build_tree(self.config.search_term)
         self._perform_union(tree)
@@ -61,7 +74,40 @@ class BaseReader(object):
         self._perform_inter(tree)
 
     def _perform_union(self, tree):
-        pass
+        # Using a closure as a counter is difficult so we'll sum a list instead
+        count = []
+
+        def _pu(a, b):
+            a_nodes = set(a.keys())
+            b_nodes = set(b.keys())
+
+            floor = {}
+            for node in a_nodes | b_nodes:
+                if node == 'lines':
+                    a_set = set(tuple(z) for z in a.get(node, []))
+                    b_set = set(tuple(z) for z in b.get(node, []))
+                    temp = list(a_set | b_set)
+                    count.append(len(temp))
+                    if temp != []:
+                        floor[node] = temp
+
+                else:
+                    a_branch = a.get(node, {})
+                    b_branch = b.get(node, {})
+
+                    if not a_branch and b_branch:
+                        temp = a_branch if a_branch else b_branch
+                        count.append(count_lines(temp))
+                    else:
+                        temp = _pu(a_branch, b_branch)
+
+                    if temp != {}:
+                        floor[node] = temp
+
+            return floor
+
+        self.tree.data = _pu(self.tree.data, tree.data)
+        self.tree._count = sum(count)
 
     def _perform_diff(self, tree):
         pass
