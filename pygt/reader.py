@@ -5,9 +5,9 @@ import subprocess
 from pygt.greptree import GrepTree
 
 # TODO: Considder moving this to GrepTree module
-def count_lines(tree):
+def count_lines(subtree):
     count = 0
-    for key, val in tree.iteritems():
+    for key, val in subtree.iteritems():
         if key == 'lines':
             count += len(val)
         else:
