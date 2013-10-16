@@ -37,15 +37,15 @@ class GrepTools(object):
         else:
             reader = reader_cls.from_pipe(config)
 
-            ## Set operations
-            #if config.union:
-            #    reader.union()
-            #elif config.join:
-            #    reader.diff()
-            #elif config.exclude:
-            #    reader.exclude()
-            #else:
-            #    reader.inter()
+            # Set operations
+            if config.union:
+                reader.union()
+            elif config.diff:
+                reader.diff()
+            elif config.exclude:
+                reader.exclude()
+            else:
+                reader.inter()
 
         if config.debug:
             print "=== Results dict ==="
@@ -73,31 +73,31 @@ class GrepTools(object):
                 help = 'Regex to search for'
                 )
 
-        #set_ops = parser.add_argument_group(
-        #        "set operations",
-        #        "Used when piping one set of results into an other."
-        #        )
+        set_ops = parser.add_argument_group(
+                "set operations",
+                "Used when piping one set of results into an other."
+                )
 
-        #set_ops.add_argument(
-        #        '-D',
-        #        action = 'store_true',
-        #        help = "Results from this search or those piped in (exclusive).",
-        #        dest = 'diff',
-        #        )
+        set_ops.add_argument(
+                '-D',
+                action = 'store_true',
+                help = "Results from this search or those piped in (exclusive).",
+                dest = 'diff',
+                )
 
-        #set_ops.add_argument(
-        #        '-U',
-        #        action = 'store_true',
-        #        help = "Add the results of this search to those piped in.",
-        #        dest = 'union',
-        #        )
+        set_ops.add_argument(
+                '-U',
+                action = 'store_true',
+                help = "Add the results of this search to those piped in.",
+                dest = 'union',
+                )
 
-        #set_ops.add_argument(
-        #        '-E',
-        #        action = 'store_true',
-        #        help = "Filter results from those piped in.",
-        #        dest = 'exclude',
-        #        )
+        set_ops.add_argument(
+                '-E',
+                action = 'store_true',
+                help = "Filter results from those piped in.",
+                dest = 'exclude',
+                )
 
         outp_ops = parser.add_argument_group("output")
 
