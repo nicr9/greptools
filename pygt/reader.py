@@ -110,7 +110,31 @@ class BaseReader(object):
         self.tree._count = sum(count)
 
     def _perform_diff(self, tree):
-        pass
+        # Using a closure as a counter is difficult so we'll sum a list instead
+        count = []
+
+        def _pd(a, b):
+            a_nodes = set(a.keys())
+            b_nodes = set(b.keys())
+
+            floor = {}
+            for node in a_nodes | b_nodes:
+                if node == 'lines':
+                    a_set = set(tuple(z) for z in a.get(node, []))
+                    b_set = set(tuple(z) for z in b.get(node, []))
+                    temp = list(a_set ^ b_set)
+                    count.append(len(temp))
+                    if temp != []:
+                        floor[node] = temp
+                else:
+                    temp = _pd(a.get(node, {}), b.get(node, {}))
+                    if temp != {}:
+                        floor[node] = temp
+
+            return floor
+
+        self.tree.data = _pd(self.tree.data, tree.data)
+        self.tree._count = sum(count)
 
     def _perform_exclude(self, tree):
         # Using a closure as a counter is difficult so we'll sum a list instead
