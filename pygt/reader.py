@@ -113,7 +113,31 @@ class BaseReader(object):
         pass
 
     def _perform_exclude(self, tree):
-        pass
+        # Using a closure as a counter is difficult so we'll sum a list instead
+        count = []
+
+        def _pe(a, b):
+            a_nodes = set(a.keys())
+            b_nodes = set(b.keys())
+
+            floor = {}
+            for node in a_nodes:
+                if node == 'lines':
+                    a_set = set(tuple(z) for z in a[node])
+                    b_set = set(tuple(z) for z in b.get(node, []))
+                    temp = list(a_set - b_set)
+                    count.append(len(temp))
+                    if temp != []:
+                        floor[node] = temp
+                else:
+                    temp = _pe(a[node], b.get(node, {}))
+                    if temp != {}:
+                        floor[node] = temp
+
+            return floor
+
+        self.tree.data = _pe(self.tree.data, tree.data)
+        self.tree._count = sum(count)
 
     def _perform_inter(self, tree):
         # Using a closure as a counter is difficult so we'll sum a list instead
