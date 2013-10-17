@@ -44,18 +44,23 @@ class GrepTree(object):
             subtree = self.data
         return subtree.setdefault(key, {})
 
+    def touch_path(self, path, subtree=None):
+        for step in path:
+            subtree = self.touch(step, subtree)
+
+        return subtree
+
     def append(self, file_path, line_number, line_text, cntx_list):
         """
-        Adds a line to the context tree.
+        Adds a line to the tree creating intermediate nodes along the way.
         """
         # Step through context tree, creating nodes along the way
-        pointer = self.data[file_path]
-        for step in cntx_list:
-            pointer = self.touch(step, pointer)
-        pointer.setdefault(self.LINES, [])
+        node_path = [file_path] + list(cntx_list)
+        head = self.touch_path(node_path)
 
-        # Add line_number + line_text to context
-        pointer[self.LINES].append((line_number, line_text))
+        # Add line_number + line_text to head of path
+        lines = head.setdefault(self.LINES, [])
+        lines.append((line_number, line_text))
 
         # Increment counter
         self._count += 1
