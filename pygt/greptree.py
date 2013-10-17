@@ -38,10 +38,11 @@ class GrepTree(object):
         flat = json.dumps(self.data, indent=4)
         outp_file.write(flat)
 
-    def touch(self, file_path):
-        # Add file path node to tree
-        if not file_path in self.data:
-            self.data[file_path] = {}
+    def touch(self, key, subtree=None):
+        """Add empty node to subtree."""
+        if subtree is None:
+            subtree = self.data
+        return subtree.setdefault(key, {})
 
     def append(self, file_path, line_number, line_text, cntx_list):
         """
@@ -50,11 +51,8 @@ class GrepTree(object):
         # Step through context tree, creating nodes along the way
         pointer = self.data[file_path]
         for step in cntx_list:
-            if step not in pointer:
-                pointer[step] = {}
-            pointer = pointer[step]
-        if self.LINES not in pointer:
-            pointer[self.LINES] = []
+            pointer = self.touch(step, pointer)
+        pointer.setdefault(self.LINES, [])
 
         # Add line_number + line_text to context
         pointer[self.LINES].append((line_number, line_text))
