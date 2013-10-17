@@ -15,6 +15,42 @@ def count_lines(subtree):
 
     return count
 
+def set_op(a, b, func1, func2):
+    # Using a closure as a counter is difficult so we'll sum a list instead
+    count = []
+
+    def _set_op(a, b, func1, func2):
+        a_nodes = set(a.keys())
+        b_nodes = set(b.keys())
+
+        floor = {}
+        for node in func1(a_nodes, b_nodes):
+            if node == 'lines':
+                a_set = set(tuple(z) for z in a.get(node, []))
+                b_set = set(tuple(z) for z in b.get(node, []))
+
+                temp = func2(a_set, b_set)
+                count.append(len(temp))
+                if temp != []:
+                    floor[node] = temp
+
+            else:
+                a_branch = a.get(node, {})
+                b_branch = b.get(node, {})
+
+                if not a_branch and b_branch:
+                    temp = a_branch if a_branch else b_branch
+                    count.append(count_lines(temp))
+                else:
+                    temp = _set_op(a_branch, b_branch, func1, func2)
+
+                if temp != {}:
+                    floor[node] = temp
+
+        return floor
+
+    return _set_op(a, b, func1, func2), sum(count)
+
 class BaseReader(object):
     GREP_TEMPLATE = 'grep ./ -Irne "%s" %s'
     INCLUDES_TEMPLATE = '--include="%s"'
@@ -59,136 +95,55 @@ class BaseReader(object):
 
     def union(self):
         tree = self.build_tree(self.config.search_term)
-        self._perform_union(tree)
+
+        func1 = lambda a, b: a | b
+        func2 = lambda a, b: list(a | b)
+
+        self.tree.data, self.tree._count = set_op(
+                self.tree.data,
+                tree.data,
+                func1,
+                func2
+                )
 
     def diff(self):
         tree = self.build_tree(self.config.search_term)
-        self._perform_diff(tree)
+
+        func1 = lambda a, b: a | b
+        func2 = lambda a, b: list(a ^ b)
+
+        self.tree.data, self.tree._count = set_op(
+                self.tree.data,
+                tree.data,
+                func1,
+                func2
+                )
 
     def exclude(self):
         tree = self.build_tree(self.config.search_term)
-        self._perform_exclude(tree)
+
+        func1 = lambda a, b: a
+        func2 = lambda a, b: list(a - b)
+
+        self.tree.data, self.tree._count = set_op(
+                self.tree.data,
+                tree.data,
+                func1,
+                func2
+                )
 
     def inter(self):
         tree = self.build_tree(self.config.search_term)
-        self._perform_inter(tree)
 
-    def _perform_union(self, tree):
-        # Using a closure as a counter is difficult so we'll sum a list instead
-        count = []
+        func1 = lambda a, b: a & b
+        func2 = lambda a, b: list(a & b)
 
-        def _pu(a, b):
-            a_nodes = set(a.keys())
-            b_nodes = set(b.keys())
-
-            floor = {}
-            for node in a_nodes | b_nodes:
-                if node == 'lines':
-                    a_set = set(tuple(z) for z in a.get(node, []))
-                    b_set = set(tuple(z) for z in b.get(node, []))
-                    temp = list(a_set | b_set)
-                    count.append(len(temp))
-                    if temp != []:
-                        floor[node] = temp
-
-                else:
-                    a_branch = a.get(node, {})
-                    b_branch = b.get(node, {})
-
-                    if not a_branch and b_branch:
-                        temp = a_branch if a_branch else b_branch
-                        count.append(count_lines(temp))
-                    else:
-                        temp = _pu(a_branch, b_branch)
-
-                    if temp != {}:
-                        floor[node] = temp
-
-            return floor
-
-        self.tree.data = _pu(self.tree.data, tree.data)
-        self.tree._count = sum(count)
-
-    def _perform_diff(self, tree):
-        # Using a closure as a counter is difficult so we'll sum a list instead
-        count = []
-
-        def _pd(a, b):
-            a_nodes = set(a.keys())
-            b_nodes = set(b.keys())
-
-            floor = {}
-            for node in a_nodes | b_nodes:
-                if node == 'lines':
-                    a_set = set(tuple(z) for z in a.get(node, []))
-                    b_set = set(tuple(z) for z in b.get(node, []))
-                    temp = list(a_set ^ b_set)
-                    count.append(len(temp))
-                    if temp != []:
-                        floor[node] = temp
-                else:
-                    temp = _pd(a.get(node, {}), b.get(node, {}))
-                    if temp != {}:
-                        floor[node] = temp
-
-            return floor
-
-        self.tree.data = _pd(self.tree.data, tree.data)
-        self.tree._count = sum(count)
-
-    def _perform_exclude(self, tree):
-        # Using a closure as a counter is difficult so we'll sum a list instead
-        count = []
-
-        def _pe(a, b):
-            a_nodes = set(a.keys())
-            b_nodes = set(b.keys())
-
-            floor = {}
-            for node in a_nodes:
-                if node == 'lines':
-                    a_set = set(tuple(z) for z in a[node])
-                    b_set = set(tuple(z) for z in b.get(node, []))
-                    temp = list(a_set - b_set)
-                    count.append(len(temp))
-                    if temp != []:
-                        floor[node] = temp
-                else:
-                    temp = _pe(a[node], b.get(node, {}))
-                    if temp != {}:
-                        floor[node] = temp
-
-            return floor
-
-        self.tree.data = _pe(self.tree.data, tree.data)
-        self.tree._count = sum(count)
-
-    def _perform_inter(self, tree):
-        # Using a closure as a counter is difficult so we'll sum a list instead
-        count = []
-
-        def _pi(a, b):
-            a_nodes = set(a.keys())
-            b_nodes = set(b.keys())
-
-            floor = {}
-            for node in a_nodes & b_nodes:
-                if node == 'lines':
-                    a_set = set(tuple(z) for z in a[node])
-                    b_set = set(tuple(z) for z in b[node])
-                    temp = list(a_set & b_set)
-                    count.append(len(temp))
-                    if temp != []:
-                        floor[node] = temp
-                else:
-                    temp = _pi(a[node], b[node])
-                    if temp != {}:
-                        floor[node] = temp
-
-            return floor
-
-        self.tree.data = _pi(self.tree.data, tree.data)
-        self.tree._count = sum(count)
+        self.tree.data, self.tree._count = set_op(
+                self.tree.data,
+                tree.data,
+                func1,
+                func2
+                )
 
     def grep_for(self, exp):
         """
