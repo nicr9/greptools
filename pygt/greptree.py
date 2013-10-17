@@ -1,7 +1,19 @@
 import unittest
 import json
 
+def count_lines(subtree):
+    """Convienience function to count the number of lines in a subtree."""
+    count = 0
+    for key, val in subtree.iteritems():
+        if key == 'lines':
+            count += len(val)
+        else:
+            count += count_lines(val)
+
+    return count
+
 class GrepTree(object):
+    """Main data structure: used to store results nested into contexts."""
     LINES = 'lines'
 
     def __init__(self, data={}):

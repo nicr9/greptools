@@ -2,20 +2,10 @@ import sys
 import re
 import subprocess
 
-from pygt.greptree import GrepTree
-
-# TODO: Considder moving this to GrepTree module
-def count_lines(subtree):
-    count = 0
-    for key, val in subtree.iteritems():
-        if key == 'lines':
-            count += len(val)
-        else:
-            count += count_lines(val)
-
-    return count
+from pygt.greptree import GrepTree, count_lines
 
 def set_op(a, b, func1, func2):
+    """Convienience function for performing a set operation on two sub trees"""
     # Using a closure as a counter is difficult so we'll sum a list instead
     count = []
 
