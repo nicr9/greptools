@@ -221,19 +221,21 @@ class PythonReader(BaseReader):
         for line_no in range(file_indx-1, -1, -1):
             # Ignore empty lines
             if lines[line_no].strip():
-                # Ignore lines that aren't a function or a class
-                kw_match = re.search(self.DEF_CLASS_RE, lines[line_no])
-                if kw_match:
-                    # Get indent of relevant lines
-                    next_indent = self._get_indent(lines[line_no])
+                # Get indent of relevant lines
+                next_indent = self._get_indent(lines[line_no])
 
-                    # if line has less indentation add to results
-                    # then change init_indent
-                    if len(next_indent) < len(init_indent):
+                # if line has less indentation 
+                if len(next_indent) < len(init_indent):
+                    # Ignore lines that aren't a function or a class
+                    kw_match = re.search(self.DEF_CLASS_RE, lines[line_no])
+                    if kw_match:
+                        # add to results
                         results.append(
                             ' '.join(kw_match.groups())
                             )
-                        init_indent = next_indent
+
+                    # then change init_indent
+                    init_indent = next_indent
 
         # Add this entry to context tree
         tree.append(
