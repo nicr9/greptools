@@ -1,8 +1,24 @@
 import sys
 import re
 import subprocess
+import os.path
+
+from fnmatch import filter as fnfilter
+from os import walk, getcwd
 
 from pygt.greptree import GrepTree, count_lines
+
+def glob_recursive(ptrn):
+    ptrn = ptrn[:-1] if ptrn[-1] == '/' else ptrn
+
+    matches = []
+    for root, dirnames, filenames in walk(getcwd()):
+        for filename in fnfilter(dirnames, ptrn):
+            matches.append(os.path.join(root, filename))
+        for filename in fnfilter(filenames, ptrn):
+            matches.append(os.path.join(root, filename))
+
+    return matches
 
 def set_op(a, b, func1, func2):
     """Convienience function for performing a set operation on two sub trees"""
@@ -42,8 +58,9 @@ def set_op(a, b, func1, func2):
     return _set_op(a, b, func1, func2), sum(count)
 
 class BaseReader(object):
-    GREP_TEMPLATE = 'grep ./ -Irne "%s" %s'
-    INCLUDES_TEMPLATE = '--include="%s"'
+    GREP_TEMPLATE = 'grep ./ -Irne "%s"%s%s'
+    INCLUDES_TEMPLATE = ' --include="%s"'
+    EXCLUDES_TEMPLATE = ' --exclude-dir="%s" --exclude="%s"'
 
     def __init__(self, config):
         self.tree = GrepTree()
@@ -135,15 +152,20 @@ class BaseReader(object):
                 func2
                 )
 
+    def _get_exclds(self):
+        if not self.config.no_ignore:
+            return self.config.ignore_file
+
     def grep_for(self, exp):
         """
         Execute a grep command to search for the given expression.
         Then add each result to self.tree.
         """
         results = []
+        exclds = self._get_exclds()
         try:
             response = subprocess.check_output(
-                    [self._grep_cmd(exp, self.FILE_PATTERNS)],
+                    [self._grep_cmd(exp, self.FILE_PATTERNS, exclds)],
                     shell=True
                     )
             results = response.splitlines()
@@ -169,9 +191,21 @@ class BaseReader(object):
 
             self.get_context(file_name, int(file_line), tree)
 
-    def _grep_cmd(self, exp, file_patterns):
+    def _grep_cmd(self, exp, file_patterns, exclude_from=None):
+        excld_flags = ''
+        if exclude_from:
+            exclds = set()
+            with open(exclude_from, 'r') as inp:
+                for row in inp:
+                    exclds.update(glob_recursive(row.strip()))
+            excld_dirs = ' '.join([os.path.relpath(z) for z in exclds if os.path.isdir(z)])
+            exclds = ' '.join([z for z in exclds if os.path.isfile(z)])
+
+            excld_flags = self.EXCLUDES_TEMPLATE % (excld_dirs, exclds)
+
         inclds = ' '.join([self.INCLUDES_TEMPLATE % z for z in file_patterns])
-        return self.GREP_TEMPLATE % (exp, inclds)
+        grep_flag = self.GREP_TEMPLATE % (exp, excld_flags, inclds)
+        return grep_flag
 
 class PythonReader(BaseReader):
     # CONSTANTS

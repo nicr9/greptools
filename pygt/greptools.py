@@ -73,6 +73,26 @@ class GrepTools(object):
                 help = 'Regex to search for'
                 )
 
+        inp_ops = parser.add_argument_group(
+                "input arguements",
+                "Control which files get searched by default."
+                )
+
+        inp_ops.add_argument(
+                '-a',
+                action = 'store_true',
+                help = "Turn file filtering off.",
+                dest = 'no_ignore'
+                )
+
+        inp_ops.add_argument(
+                '-i',
+                default = '.gitignore',
+                type = str,
+                help = 'File with list of file patterns to ignore.',
+                dest = 'ignore_file'
+                )
+
         set_ops = parser.add_argument_group(
                 "set operations",
                 "Used when piping one set of results into an other."
