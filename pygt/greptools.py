@@ -81,7 +81,7 @@ class GrepTools(object):
         set_ops.add_argument(
                 '-D',
                 action = 'store_true',
-                help = "Results from this search or those piped in (exclusive).",
+                help = "Results from this search (exclusive) or those piped in.",
                 dest = 'diff',
                 )
 
@@ -99,7 +99,10 @@ class GrepTools(object):
                 dest = 'exclude',
                 )
 
-        outp_ops = parser.add_argument_group("output")
+        outp_ops = parser.add_argument_group(
+                "output",
+                "Control how and what is output to stdout."
+                )
 
         outp_ops.add_argument(
                 '-f',
