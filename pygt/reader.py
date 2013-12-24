@@ -63,6 +63,10 @@ class BaseReader(object):
     INCLUDES_TEMPLATE = ' --include="%s"'
     EXCLUDES_TEMPLATE = ' --exclude-dir="%s" --exclude="%s"'
 
+    # Things that should be defined by subclass
+    FILE_PATTERNS = []
+    TYPE = ''
+
     def __init__(self, config):
         self.tree = GrepTree()
         self.config = config
@@ -188,7 +192,7 @@ class BaseReader(object):
             tree = self.tree
 
         for row in results:
-            file_name, file_line, line_text = row.split(':')[:3]
+            file_name, file_line, _ = row.split(':')[:3]
 
             self.get_context(file_name, int(file_line), tree)
 
@@ -210,6 +214,9 @@ class BaseReader(object):
 
         inclds = ' '.join([self.INCLUDES_TEMPLATE % z for z in file_patterns])
         return self.GREP_TEMPLATE % (exp, excld_flags, inclds)
+
+    def get_context(self, file_path, file_line, tree=None):
+        raise NotImplementedError
 
 class PythonReader(BaseReader):
     # CONSTANTS
@@ -240,7 +247,7 @@ class PythonReader(BaseReader):
             tree = self.tree
 
         # Create a branch in the tree for this file
-        tree.touch(file_path) #TODO:
+        tree.touch(file_path)
 
         # Read in all lines up to and including the line given
         lines = []
