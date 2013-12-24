@@ -101,7 +101,7 @@ class GrepTools(object):
         set_ops.add_argument(
                 '-D',
                 action = 'store_true',
-                help = "Results from this search (exclusive) or those piped in.",
+                help = "XOR results from this search and those piped in.",
                 dest = 'diff',
                 )
 
