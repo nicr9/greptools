@@ -21,20 +21,20 @@ def glob_recursive(ptrn):
 
     return dir_matches, file_matches
 
-def set_op(a, b, func1, func2):
+def set_op(a_subtree, b_subtree, func1, func2):
     """Convienience function for performing a set operation on two sub trees"""
     # Using a closure as a counter is difficult so we'll sum a list instead
     count = []
 
-    def _set_op(a, b, func1, func2):
-        a_nodes = set(a.keys())
-        b_nodes = set(b.keys())
+    def _set_op(a_subtree, b_subtree, func1, func2):
+        a_nodes = set(a_subtree.keys())
+        b_nodes = set(b_subtree.keys())
 
         floor = {}
         for node in func1(a_nodes, b_nodes):
             if node == 'lines':
-                a_set = set(tuple(z) for z in a.get(node, []))
-                b_set = set(tuple(z) for z in b.get(node, []))
+                a_set = set(tuple(z) for z in a_subtree.get(node, []))
+                b_set = set(tuple(z) for z in b_subtree.get(node, []))
 
                 temp = func2(a_set, b_set)
                 count.append(len(temp))
@@ -42,8 +42,8 @@ def set_op(a, b, func1, func2):
                     floor[node] = temp
 
             else:
-                a_branch = a.get(node, {})
-                b_branch = b.get(node, {})
+                a_branch = a_subtree.get(node, {})
+                b_branch = b_subtree.get(node, {})
 
                 if not a_branch and b_branch:
                     temp = a_branch if a_branch else b_branch
@@ -56,7 +56,7 @@ def set_op(a, b, func1, func2):
 
         return floor
 
-    return _set_op(a, b, func1, func2), sum(count)
+    return _set_op(a_subtree, b_subtree, func1, func2), sum(count)
 
 class BaseReader(object):
     GREP_TEMPLATE = 'grep ./ -Irne "%s"%s%s'
