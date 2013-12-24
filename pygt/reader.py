@@ -11,14 +11,15 @@ from pygt.greptree import GrepTree, count_lines
 def glob_recursive(ptrn):
     ptrn = ptrn[:-1] if ptrn[-1] == '/' else ptrn
 
-    matches = []
+    dir_matches = []
+    file_matches = []
     for root, dirnames, filenames in walk(getcwd()):
-        for filename in fnfilter(dirnames, ptrn):
-            matches.append(os.path.join(root, filename))
+        for dirname in fnfilter(dirnames, ptrn):
+            dir_matches.append(os.path.relpath(os.path.join(root, dirname)))
         for filename in fnfilter(filenames, ptrn):
-            matches.append(os.path.join(root, filename))
+            file_matches.append(os.path.join(root, filename))
 
-    return matches
+    return dir_matches, file_matches
 
 def set_op(a, b, func1, func2):
     """Convienience function for performing a set operation on two sub trees"""
@@ -195,17 +196,20 @@ class BaseReader(object):
         excld_flags = ''
         if exclude_from:
             exclds = set()
+            excld_dirs = set()
             with open(exclude_from, 'r') as inp:
                 for row in inp:
-                    exclds.update(glob_recursive(row.strip()))
-            excld_dirs = ' '.join([os.path.relpath(z) for z in exclds if os.path.isdir(z)])
-            exclds = ' '.join([z for z in exclds if os.path.isfile(z)])
+                    dirs, files = glob_recursive(row.strip())
+                    excld_dirs.update(dirs)
+                    exclds.update(files)
+
+            excld_dirs = ' '.join(excld_dirs)
+            exclds = ' '.join(exclds)
 
             excld_flags = self.EXCLUDES_TEMPLATE % (excld_dirs, exclds)
 
         inclds = ' '.join([self.INCLUDES_TEMPLATE % z for z in file_patterns])
-        grep_flag = self.GREP_TEMPLATE % (exp, excld_flags, inclds)
-        return grep_flag
+        return self.GREP_TEMPLATE % (exp, excld_flags, inclds)
 
 class PythonReader(BaseReader):
     # CONSTANTS
