@@ -9,6 +9,7 @@ from os import walk, getcwd
 from pygt.greptree import GrepTree, count_lines
 
 def glob_recursive(ptrn):
+    """Returns a list of paths under ./ that match a given glob pattern."""
     ptrn = ptrn[:-1] if ptrn[-1] == '/' else ptrn
 
     dir_matches = []
@@ -22,7 +23,7 @@ def glob_recursive(ptrn):
     return dir_matches, file_matches
 
 def set_op(a_subtree, b_subtree, func1, func2):
-    """Convienience function for performing a set operation on two sub trees"""
+    """Convienience function for performing a set operation on two sub trees."""
     # Using a closure as a counter is difficult so we'll sum a list instead
     count = []
 
@@ -59,6 +60,13 @@ def set_op(a_subtree, b_subtree, func1, func2):
     return _set_op(a_subtree, b_subtree, func1, func2), sum(count)
 
 class BaseReader(object):
+    """Base class only. Please subclass and implement the following:
+
+    - FILE_PATTERNS : a list of file extensions to read.
+    - TYPE : The name of the programming language this Reader pertains to
+    - get_context() : Given a file and line number,
+                        this should return the lines context."""
+
     GREP_TEMPLATE = 'grep ./ -Irne "%s"%s%s'
     INCLUDES_TEMPLATE = ' --include="%s"'
     EXCLUDES_TEMPLATE = ' --exclude-dir="%s" --exclude="%s"'
@@ -74,6 +82,7 @@ class BaseReader(object):
 
     @classmethod
     def from_file(cls, config, path):
+        """Create Reader and populate tree from file."""
         temp = cls(config)
         temp.tree = GrepTree.load_path(path)
 
@@ -81,6 +90,7 @@ class BaseReader(object):
 
     @classmethod
     def from_grep(cls, config):
+        """Create Reader and populate tree by grepping files."""
         temp = cls(config)
         temp.tree = temp.build_tree(config.search_term)
 
@@ -88,12 +98,14 @@ class BaseReader(object):
 
     @classmethod
     def from_pipe(cls, config):
+        """Create Reader and read tree from incomming pipe."""
         temp = cls(config)
         temp.tree = GrepTree.load(sys.stdin)
 
         return temp
 
     def build_tree(self, query):
+        """Perform grep search and sort results into GrepTree."""
         # Grep for expresion
         results = self.grep_for(query)
 
@@ -106,6 +118,7 @@ class BaseReader(object):
     # TODO: The methods below should print additional debug info of the comparison tree
 
     def union(self):
+        """Perform union set operation against GrepTree piped in."""
         tree = self.build_tree(self.config.search_term)
 
         func1 = lambda a, b: a | b
@@ -119,6 +132,7 @@ class BaseReader(object):
                 )
 
     def diff(self):
+        """Perform XOR set operation against GrepTree piped in."""
         tree = self.build_tree(self.config.search_term)
 
         func1 = lambda a, b: a | b
@@ -132,6 +146,7 @@ class BaseReader(object):
                 )
 
     def exclude(self):
+        """Filter results piped in from those in current GrepTree"""
         tree = self.build_tree(self.config.search_term)
 
         func1 = lambda a, b: a
@@ -145,6 +160,7 @@ class BaseReader(object):
                 )
 
     def inter(self):
+        """Perform intersection set operation against GrepTree piped in."""
         tree = self.build_tree(self.config.search_term)
 
         func1 = lambda a, b: a & b
@@ -158,10 +174,12 @@ class BaseReader(object):
                 )
 
     def _get_exclds(self):
+        """Decide which file should be used to build list of paths to ignore."""
         if not self.config.no_ignore:
             return self.config.ignore_file
 
     def grep_for(self, exp):
+        """Perform grep search."""
         """
         Execute a grep command to search for the given expression.
         Then add each result to self.tree.
@@ -188,6 +206,7 @@ class BaseReader(object):
         return results
 
     def add_to_tree(self, results, tree=None):
+        """Take result and add it to current GrepTree."""
         if tree is None:
             tree = self.tree
 
@@ -197,6 +216,7 @@ class BaseReader(object):
             self.get_context(file_name, int(file_line), tree)
 
     def _grep_cmd(self, exp, file_patterns, exclude_from=None):
+        """Build the grep command used to perform search."""
         excld_flags = ''
         if exclude_from:
             exclds = set()
@@ -216,9 +236,13 @@ class BaseReader(object):
         return self.GREP_TEMPLATE % (exp, excld_flags, inclds)
 
     def get_context(self, file_path, file_line, tree=None):
+        """
+        Given the file path and the line number, determine the context of that line.
+        """
         raise NotImplementedError
 
 class PythonReader(BaseReader):
+    """An implementation of a Reader for Python code."""
     # CONSTANTS
     INDENT_RE = re.compile("^(\s*)")
     DEF_CLASS_RE = re.compile("^\s*(def|class) (.*?)[(:]")
@@ -237,9 +261,6 @@ class PythonReader(BaseReader):
         return re.sub(self.TAB, self.FOUR_SPACES, indent)
 
     def get_context(self, file_path, file_line, tree=None):
-        """
-        Given the file path and the line number, determine the context of that line.
-        """
         # Zero-based index for file line number
         file_indx = file_line - 1
 

@@ -1,4 +1,5 @@
 class Publisher(object):
+    """Formats a GrepTree in a human readible format and sends to stdout."""
     # Constants
     LINES = 'lines'
 
@@ -27,15 +28,20 @@ class Publisher(object):
         self.debug = config.debug
 
     def set_format(self, outp_format):
+        """Manipulates various parts of the output template.
+        Different foramts can be selected by keyword.
+        See `Publisher.VALID_FORMATS`."""
         assert outp_format in self.VALID_FORMATS
 
         self.line_sum_template = self.LINE_SUM_TEMPS[outp_format]
         self.context_template = self.CONTEXT_TEMPS[outp_format]
 
     def _format_line(self, line_number, line_text):
+        """Handles formatting lines displaying a result."""
         return self.line_sum_template % (line_number, line_text)
 
     def print_tree(self, tree):
+        """Formats the provided GrepTree in human readible format."""
         def _print(data, counter=0):
             for key, val in data.iteritems():
                 if isinstance(val, dict):

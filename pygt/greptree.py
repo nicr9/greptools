@@ -1,3 +1,8 @@
+"""The GrepTree data structure centers around the idea of a `context`. A context
+is essentially the function/class/method/file that a line belongs to. A GrepTree
+is a nested tree-style collection of these contexts, with the furthest point on
+each branch containing a list of lines that come from that context.
+"""
 import unittest
 import json
 
@@ -13,7 +18,7 @@ def count_lines(subtree):
     return count
 
 class GrepTree(object):
-    """Main data structure: used to store results nested into contexts."""
+    """Data structure for storing results as a tree of nested contexts."""
     LINES = 'lines'
 
     def __init__(self, data={}):
@@ -22,29 +27,34 @@ class GrepTree(object):
 
     @classmethod
     def load(cls, inp_file):
+        """Create GrepTree object from json file handler."""
         return cls(json.load(inp_file))
 
     @classmethod
     def load_path(cls, path):
+        """Open json file as GrepTree object."""
         with open(path, 'r') as inp_file:
             return cls(json.load(inp_file))
 
     def dump_to_path(self, path):
+        """JSON encode GrepTree object and write to file at path."""
         with open(path, 'w') as outp_file:
-            flat = json.dumps(self.data, indent=4)
-            outp_file.write(flat)
+            self.dump(outp_file)
 
     def dump(self, outp_file):
+        """JSON encode GrepTree object and write to file object."""
         flat = json.dumps(self.data, indent=4)
         outp_file.write(flat)
 
     def touch(self, key, subtree=None):
-        """Add empty node to subtree."""
+        """Add empty node to a subtree."""
         if subtree is None:
             subtree = self.data
         return subtree.setdefault(key, {})
 
     def touch_path(self, path, subtree=None):
+        """Recursively adds a string of empty nodes to a subtree. 
+        Returns the new subtree when it's done."""
         for step in path:
             subtree = self.touch(step, subtree)
 
@@ -52,7 +62,7 @@ class GrepTree(object):
 
     def append(self, file_path, line_number, line_text, cntx_list):
         """
-        Adds a line to the tree creating intermediate nodes along the way.
+        Adds a line to the tree creating any intermediate nodes along the way.
         """
         # Step through context tree, creating nodes along the way
         node_path = [file_path] + list(cntx_list)
@@ -66,6 +76,8 @@ class GrepTree(object):
         self._count += 1
 
 class TestGrepTree(unittest.TestCase):
+    """TODO: This all needs to be implemented."""
+
     def test_load(self):
         # Test path that doesn't exist
         # Test path that doesn't contain vaild json

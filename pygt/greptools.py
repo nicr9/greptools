@@ -1,3 +1,4 @@
+"""Core of the package, contains the bootstrapping logic."""
 import sys
 import json
 from argparse import ArgumentParser, RawTextHelpFormatter
@@ -5,9 +6,12 @@ from argparse import ArgumentParser, RawTextHelpFormatter
 from pygt.publisher import Publisher
 
 def bullet_list(inp):
+    """Joins elements in a list into a bullet formatted list."""
     return '\n' + '\n'.join(['- ' + z for z in inp])
 
 class GrepTools(object):
+    """Used to bootstrap all greptools CLIs.
+    Takes a subclass of `BaseReader` and a list of CLI arguements as params. """
     # CONSTANTS
     DESCRIPTION = '%s Grep Tool.'
     EPILOG = 'Author: Nic Roland\nEmail: nicroland9@gmail.com\nTwitter: @nicr9_'
@@ -59,18 +63,19 @@ class GrepTools(object):
             reader.tree.dump(sys.stdout)
 
     def parse_args(self, argv):
+        """For parsing CLI arguements."""
         parser = ArgumentParser(
-                formatter_class = RawTextHelpFormatter,
-                description = self.DESCRIPTION % self.reader_type,
-                epilog = self.EPILOG
+                formatter_class=RawTextHelpFormatter,
+                description=self.DESCRIPTION % self.reader_type,
+                epilog=self.EPILOG
                 )
 
         parser.add_argument(
                 'search_term',
-                default = None,
+                default=None,
                 nargs='?',
-                type = str,
-                help = 'Regex to search for'
+                type=str,
+                help='Regex to search for'
                 )
 
         inp_ops = parser.add_argument_group(
@@ -80,17 +85,17 @@ class GrepTools(object):
 
         inp_ops.add_argument(
                 '-a',
-                action = 'store_true',
-                help = "Turn file filtering off.",
-                dest = 'no_ignore'
+                action='store_true',
+                help="Turn file filtering off.",
+                dest='no_ignore'
                 )
 
         inp_ops.add_argument(
                 '-i',
-                default = '.gitignore',
-                type = str,
-                help = 'File with list of file patterns to ignore.',
-                dest = 'ignore_file'
+                default='.gitignore',
+                type=str,
+                help='File with list of file patterns to ignore.',
+                dest='ignore_file'
                 )
 
         set_ops = parser.add_argument_group(
@@ -100,23 +105,23 @@ class GrepTools(object):
 
         set_ops.add_argument(
                 '-D',
-                action = 'store_true',
-                help = "XOR results from this search and those piped in.",
-                dest = 'diff',
+                action='store_true',
+                help="XOR results from this search and those piped in.",
+                dest='diff',
                 )
 
         set_ops.add_argument(
                 '-U',
-                action = 'store_true',
-                help = "Add the results of this search to those piped in.",
-                dest = 'union',
+                action='store_true',
+                help="Add the results of this search to those piped in.",
+                dest='union',
                 )
 
         set_ops.add_argument(
                 '-E',
-                action = 'store_true',
-                help = "Filter results from those piped in.",
-                dest = 'exclude',
+                action='store_true',
+                help="Filter results from those piped in.",
+                dest='exclude',
                 )
 
         outp_ops = parser.add_argument_group(
@@ -127,18 +132,18 @@ class GrepTools(object):
         outp_ops.add_argument(
                 '-f',
                 '--format',
-                default = 'colour',
-                type = str,
-                help = 'Format to display output in:%s' 
+                default='colour',
+                type=str,
+                help='Format to display output in:%s'
                         % bullet_list(Publisher.VALID_FORMATS),
-                dest = 'outp_format'
+                dest='outp_format'
                 )
 
         outp_ops.add_argument(
                 '-d',
-                action = 'store_true',
-                help = "Display additional information to aid debugging.",
-                dest = 'debug'
+                action='store_true',
+                help="Display additional information to aid debugging.",
+                dest='debug'
                 )
 
         return parser.parse_args(argv[1:])
