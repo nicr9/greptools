@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
         name='pygt',
-        version='0.5a',
+        version='v0.6',
         description='Python Grep Tool',
         author='Nic Roland',
         author_email='nicroland9@gmail.com',
