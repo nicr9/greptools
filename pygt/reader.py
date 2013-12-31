@@ -207,8 +207,8 @@ class BaseReader(object):
                     excld_dirs.update(dirs)
                     exclds.update(files)
 
-            excld_dirs = ' '.join(excld_dirs)
-            exclds = ' '.join(exclds)
+            excld_dirs = '" --exclude-dir="'.join(excld_dirs)
+            exclds = '" --exclude="'.join(exclds)
 
             excld_flags = self.EXCLUDES_TEMPLATE % (excld_dirs, exclds)
 
