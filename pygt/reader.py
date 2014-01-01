@@ -179,7 +179,6 @@ class BaseReader(object):
             return self.config.ignore_file
 
     def grep_for(self, exp):
-        """Perform grep search."""
         """
         Execute a grep command to search for the given expression.
         Then add each result to self.tree.
