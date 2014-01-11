@@ -220,19 +220,21 @@ class BaseReader(object):
         if exclude_from:
             exclds = set()
             excld_dirs = set()
-            with open(exclude_from, 'r') as inp:
-                for row in inp:
-                    dirs, files = glob_recursive(row.strip())
-                    excld_dirs.update(dirs)
-                    exclds.update(files)
-
-            excld_dirs = '" --exclude-dir="'.join(excld_dirs)
-            exclds = '" --exclude="'.join(exclds)
-
-            excld_flags = self.EXCLUDES_TEMPLATE % (excld_dirs, exclds)
-
-        inclds = ' '.join([self.INCLUDES_TEMPLATE % z for z in file_patterns])
-        return self.GREP_TEMPLATE % (exp, excld_flags, inclds)
+            try:
+                with open(exclude_from, 'r') as inp:
+                    for row in inp:
+                        dirs, files = glob_recursive(row.strip())
+                        excld_dirs.update(dirs)
+                        exclds.update(files)
+            except IOError:
+                excld_flags = ''
+            else:
+                excld_dirs = '" --exclude-dir="'.join(excld_dirs)
+                exclds = '" --exclude="'.join(exclds)
+                excld_flags = self.EXCLUDES_TEMPLATE % (excld_dirs, exclds)
+            finally:
+                inclds = ' '.join([self.INCLUDES_TEMPLATE % z for z in file_patterns])
+                return self.GREP_TEMPLATE % (exp, excld_flags, inclds)
 
     def get_context(self, file_path, file_line, tree=None):
         """
