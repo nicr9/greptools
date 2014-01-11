@@ -8,6 +8,9 @@ from os import walk, getcwd
 
 from pygt.greptree import GrepTree, count_lines
 
+def warn(msg):
+    print "=== \033[91mWarn: %s\033[0m ===\n" % str(msg)
+
 def glob_recursive(ptrn):
     """Returns a list of paths under ./ that match a given glob pattern."""
     ptrn = ptrn[:-1] if ptrn[-1] == '/' else ptrn
@@ -100,7 +103,12 @@ class BaseReader(object):
     def from_pipe(cls, config):
         """Create Reader and read tree from incomming pipe."""
         temp = cls(config)
-        temp.tree = GrepTree.load(sys.stdin)
+        try:
+            temp.tree = GrepTree.load(sys.stdin)
+        except ValueError:
+            if temp.debug:
+                warn("Choked on input from pipe")
+            temp.tree = GrepTree()
 
         return temp
 
