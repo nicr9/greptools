@@ -25,7 +25,7 @@ class Searcher(object):
     EXCLUDES_TEMPLATE = ' --exclude-dir="%s" --exclude="%s"'
 
     def __init__(self, config, file_patterns=[]):
-        self.FILE_PATTERNS = file_patterns
+        self.file_patterns = file_patterns
         self.config = config
         self.debug = config.debug
 
@@ -40,7 +40,7 @@ class Searcher(object):
         Then add each result to self.tree.
         """
         exclds = self._get_exclds()
-        cmd = self._grep_cmd(exp, self.FILE_PATTERNS, exclds)
+        cmd = self._grep_cmd(exp, self.file_patterns, exclds)
 
         results = []
         try:
