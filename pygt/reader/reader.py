@@ -190,11 +190,13 @@ class BaseReader(object):
         Execute a grep command to search for the given expression.
         Then add each result to self.tree.
         """
-        results = []
         exclds = self._get_exclds()
+        cmd = self._grep_cmd(exp, self.FILE_PATTERNS, exclds)
+
+        results = []
         try:
             response = subprocess.check_output(
-                    [self._grep_cmd(exp, self.FILE_PATTERNS, exclds)],
+                    [cmd],
                     shell=True
                     )
             results = response.splitlines()
