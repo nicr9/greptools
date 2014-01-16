@@ -76,6 +76,16 @@ class Searcher(object):
         """Build the grep command used to perform search."""
         exclds, excld_dirs = self.get_exclds()
 
+        if self.debug:
+            print "=== Excluded files ==="
+            for f in exclds:
+                print f
+            print
+            print "=== Excluded dirs ==="
+            for d in excld_dirs:
+                print d
+            print
+
         # Turn list of excluded files into flags for grep
         exclds = ''.join([self.EXCLUDES_TEMPLATE % z for z in exclds])
         excld_dirs = ''.join(
