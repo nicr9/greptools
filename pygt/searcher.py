@@ -19,10 +19,10 @@ def glob_recursive(ptrn):
     return dir_matches, file_matches
 
 class Searcher(object):
-
     GREP_TEMPLATE = 'grep ./ -Irne "%s"%s%s'
     INCLUDES_TEMPLATE = ' --include="%s"'
-    EXCLUDES_TEMPLATE = ' --exclude-dir="%s" --exclude="%s"'
+    EXCLUDES_TEMPLATE = ' --exclude="%s"'
+    EXCLUDE_DIRS_TEMPLATE = ' --exclude-dir="%s"'
 
     def __init__(self, config, file_patterns=[]):
         self.file_patterns = file_patterns
@@ -31,16 +31,26 @@ class Searcher(object):
 
     def _get_exclds(self):
         """Decide which file should be used to build list of paths to ignore."""
-        if not self.config.no_ignore:
-            return self.config.ignore_file
+        if not self.config.no_ignore and self.config.ignore_file:
+            exclds = set()
+            excld_dirs = set()
+            try:
+                with open(self.config.ignore_file, 'r') as inp:
+                    for row in inp:
+                        dirs, files = glob_recursive(row.strip())
+                        excld_dirs.update(dirs)
+                        exclds.update(files)
+            except IOError:
+                pass
+
+            return exclds, excld_dirs
 
     def grep_for(self, exp):
         """
         Execute a grep command to search for the given expression.
         Then add each result to self.tree.
         """
-        exclds = self._get_exclds()
-        cmd = self._grep_cmd(exp, self.file_patterns, exclds)
+        cmd = self._grep_cmd(exp, self.file_patterns)
 
         results = []
         try:
@@ -62,25 +72,17 @@ class Searcher(object):
 
         return results
 
-    def _grep_cmd(self, exp, file_patterns, exclude_from=None):
+    def _grep_cmd(self, exp, file_patterns):
         """Build the grep command used to perform search."""
-        excld_flags = ''
-        if exclude_from:
-            exclds = set()
-            excld_dirs = set()
-            try:
-                with open(exclude_from, 'r') as inp:
-                    for row in inp:
-                        dirs, files = glob_recursive(row.strip())
-                        excld_dirs.update(dirs)
-                        exclds.update(files)
+        exclds, excld_dirs = self._get_exclds()
 
-            except IOError:
-                excld_flags = ''
-            else:
-                excld_dirs = '" --exclude-dir="'.join(excld_dirs)
-                exclds = '" --exclude="'.join(exclds)
-                excld_flags = self.EXCLUDES_TEMPLATE % (excld_dirs, exclds)
-            finally:
-                inclds = ' '.join([self.INCLUDES_TEMPLATE % z for z in file_patterns])
-                return self.GREP_TEMPLATE % (exp, excld_flags, inclds)
+        # Turn list of excluded files into flags for grep
+        exclds = ''.join([self.EXCLUDES_TEMPLATE % z for z in exclds])
+        excld_dirs = ''.join(
+                [self.EXCLUDE_DIRS_TEMPLATE % z for z in excld_dirs]
+                )
+        excld_flags = exclds + excld_dirs
+
+        inclds = ' '.join([self.INCLUDES_TEMPLATE % z for z in file_patterns])
+
+        return self.GREP_TEMPLATE % (exp, excld_flags, inclds)
