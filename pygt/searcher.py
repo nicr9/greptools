@@ -29,7 +29,7 @@ class Searcher(object):
         self.config = config
         self.debug = config.debug
 
-    def _get_exclds(self):
+    def get_exclds(self):
         """Decide which file should be used to build list of paths to ignore."""
         if not self.config.no_ignore and self.config.ignore_file:
             exclds = set()
@@ -74,7 +74,7 @@ class Searcher(object):
 
     def _grep_cmd(self, exp, file_patterns):
         """Build the grep command used to perform search."""
-        exclds, excld_dirs = self._get_exclds()
+        exclds, excld_dirs = self.get_exclds()
 
         # Turn list of excluded files into flags for grep
         exclds = ''.join([self.EXCLUDES_TEMPLATE % z for z in exclds])
