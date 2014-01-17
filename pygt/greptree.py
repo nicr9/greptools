@@ -3,7 +3,6 @@ is essentially the function/class/method/file that a line belongs to. A GrepTree
 is a nested tree-style collection of these contexts, with the furthest point on
 each branch containing a list of lines that come from that context.
 """
-import unittest
 import json
 
 def count_lines(subtree):
@@ -74,19 +73,3 @@ class GrepTree(object):
 
         # Increment counter
         self._count += 1
-
-class TestGrepTree(unittest.TestCase):
-    """TODO: This all needs to be implemented."""
-
-    def test_load(self):
-        # Test path that doesn't exist
-        # Test path that doesn't contain vaild json
-        # Test path that doesn't contain a json dict (but still valid json)
-        # Test path that looks legit
-        pass
-
-    def test_append(self):
-        pass
-
-if __name__ == "__main__":
-    unittest.main()
