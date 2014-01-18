@@ -18,46 +18,51 @@ class GrepTools(object):
 
     def __init__(self, reader_cls, args):
         self.reader_type = reader_cls.TYPE
+        self.reader_cls = reader_cls
 
-        config = self.parse_args(args)
+        self.config = self.parse_args(args)
 
         # Disable config.debug if stdout is a pipe
         if not sys.stdout.isatty():
-            config.debug = False
+            self.config.debug = False
 
-        if config.debug:
+        if self.config.debug:
             print "=== CLI args ==="
             print args, '\n'
-            config_pretty = {x:y for x, y in config._get_kwargs()}
+            config_pretty = {x:y for x, y in self.config._get_kwargs()}
             print "=== pygt config ==="
             print json.dumps(config_pretty, indent=4) + '\n'
 
+        self.run()
+
+    def run(self):
+        """Execute the search, filter, format, print results."""
         # Either load results from pipe or grep new ones
         if sys.stdin.isatty():
-            if config.search_term is None:
+            if self.config.search_term is None:
                 sys.exit()
             else:
-                reader = reader_cls.from_grep(config)
+                reader = self.reader_cls.from_grep(self.config)
         else:
-            reader = reader_cls.from_pipe(config)
+            reader = self.reader_cls.from_pipe(self.config)
 
             # Set operations
-            if config.union:
+            if self.config.union:
                 reader.union()
-            elif config.diff:
+            elif self.config.diff:
                 reader.diff()
-            elif config.exclude:
+            elif self.config.exclude:
                 reader.exclude()
             else:
                 reader.inter()
 
-        if config.debug:
+        if self.config.debug:
             print "=== Results dict ==="
             print json.dumps(reader.tree.data, indent=4) + '\n'
 
         # Push to stdout or dump tree to pipe
         if sys.stdout.isatty():
-            publisher = Publisher(config)
+            publisher = Publisher(self.config)
             publisher.print_tree(reader.tree)
         else:
             reader.tree.dump(sys.stdout)
