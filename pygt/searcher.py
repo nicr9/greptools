@@ -1,5 +1,6 @@
 import subprocess
 import os.path
+import sys.exit
 
 from fnmatch import filter as fnfilter
 from os import walk, getcwd
@@ -19,6 +20,7 @@ def glob_recursive(ptrn):
     return dir_matches, file_matches
 
 class Searcher(object):
+    """Constructs and executes grep queries."""
     GREP_TEMPLATE = 'grep ./ -Irne "%s"%s%s'
     INCLUDES_TEMPLATE = ' --include="%s"'
     EXCLUDES_TEMPLATE = ' --exclude="%s"'
@@ -63,11 +65,11 @@ class Searcher(object):
             if self.debug:
                 print "=== Grep results ==="
                 print response, "Total results: %d\n" % len(results)
-        except subprocess.CalledProcessError, e:
-            if e.returncode == 1:
+        except subprocess.CalledProcessError, err:
+            if err.returncode == 1:
                 print "Couldn't find anything matching '%s'" % exp
             else:
-                print "Whoops, grep returned errorcode %d" % e.errorcode
+                print "Whoops, grep returned errorcode %d" % err.errorcode
             sys.exit()
 
         return results
@@ -78,12 +80,12 @@ class Searcher(object):
 
         if self.debug:
             print "=== Excluded files ==="
-            for f in exclds:
-                print f
+            for exf in exclds:
+                print exf
             print
             print "=== Excluded dirs ==="
-            for d in excld_dirs:
-                print d
+            for exd in excld_dirs:
+                print exd
             print
 
         # Turn list of excluded files into flags for grep
