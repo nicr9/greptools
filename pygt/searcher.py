@@ -1,6 +1,6 @@
 import subprocess
 import os.path
-import sys.exit
+from sys import exit as sys_exit
 
 from fnmatch import filter as fnfilter
 from os import walk, getcwd
@@ -32,7 +32,7 @@ class Searcher(object):
         self.debug = config.debug
 
     def get_exclds(self):
-        """Decide which file should be used to build list of paths to ignore."""
+        """Build list of file paths to ignore in upcomming search."""
         if not self.config.no_ignore and self.config.ignore_file:
             exclds = set()
             excld_dirs = set()
@@ -52,11 +52,10 @@ class Searcher(object):
     def grep_for(self, exp):
         """
         Execute a grep command to search for the given expression.
-        Then add each result to self.tree.
+        Results are returned as a list.
         """
         cmd = self._grep_cmd(exp, self.file_patterns)
 
-        results = []
         try:
             response = subprocess.check_output(
                     [cmd],
@@ -72,7 +71,7 @@ class Searcher(object):
                 print "Couldn't find anything matching '%s'" % exp
             else:
                 print "Whoops, grep returned errorcode %d" % err.errorcode
-            sys.exit()
+            sys_exit()
 
         return results
 
@@ -90,13 +89,14 @@ class Searcher(object):
                 print exd
             print
 
-        # Turn list of excluded files into flags for grep
+        # Turn list of excluded files into string of CLI flags
         exclds = ''.join([self.EXCLUDES_TEMPLATE % z for z in exclds])
         excld_dirs = ''.join(
                 [self.EXCLUDE_DIRS_TEMPLATE % z for z in excld_dirs]
                 )
         excld_flags = exclds + excld_dirs
 
+        # Turn list of included filetypes into string of CLI flags
         inclds = ' '.join([self.INCLUDES_TEMPLATE % z for z in file_patterns])
 
         return self.GREP_TEMPLATE % (exp, excld_flags, inclds)
