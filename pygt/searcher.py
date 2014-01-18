@@ -46,6 +46,8 @@ class Searcher(object):
                 pass
 
             return exclds, excld_dirs
+        else:
+            return [], []
 
     def grep_for(self, exp):
         """
