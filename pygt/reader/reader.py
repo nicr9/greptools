@@ -1,5 +1,4 @@
 import sys
-import os.path
 
 from pygt.greptree import GrepTree, count_lines
 from pygt.searcher import Searcher
