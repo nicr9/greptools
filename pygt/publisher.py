@@ -24,7 +24,10 @@ class Publisher(object):
             }
 
     def __init__(self, config):
+        self.line_sum_template = ''
+        self.context_template = ''
         self.set_format(config.outp_format)
+
         self.debug = config.debug
 
     def set_format(self, outp_format):
