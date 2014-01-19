@@ -46,6 +46,7 @@ class Publisher(object):
     def print_tree(self, tree):
         """Formats the provided GrepTree in human readible format."""
         def _print(data, counter=0):
+            """Recursively traverses GrepTree, printing nodes along the way."""
             for key, val in data.iteritems():
                 if isinstance(val, dict):
                     print ' '*counter + self.context_template % key

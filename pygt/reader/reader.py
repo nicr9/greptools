@@ -4,6 +4,7 @@ from pygt.greptree import GrepTree, count_lines
 from pygt.searcher import Searcher
 
 def warn(msg):
+    """Print message in a warning header."""
     print "=== \033[91mWarn: %s\033[0m ===\n" % str(msg)
 
 def set_op(a_subtree, b_subtree, func1, func2):
@@ -12,6 +13,7 @@ def set_op(a_subtree, b_subtree, func1, func2):
     count = []
 
     def _set_op(a_subtree, b_subtree, func1, func2):
+        """Recursive function for performing set operations."""
         a_nodes = set(a_subtree.keys())
         b_nodes = set(b_subtree.keys())
 

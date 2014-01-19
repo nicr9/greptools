@@ -45,7 +45,7 @@ class Searcher(object):
                             excld_dirs.update(dirs)
                             exclds.update(files)
                         elif os.path.isfile(row):
-                            exclds.add(os/path.join('./', row))
+                            exclds.add(os.path.join('./', row))
                         elif os.path.isdir(row):
                             row = row.rstrip('/')
                             if not row[:2] == './':
