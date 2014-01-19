@@ -67,6 +67,10 @@ class Searcher(object):
         """
         cmd = self._grep_cmd(exp, self.file_patterns)
 
+        if self.debug:
+            print "=== Grep command ==="
+            print " $ %s\n" % cmd
+
         try:
             response = subprocess.check_output(
                     [cmd],
