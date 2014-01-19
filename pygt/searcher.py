@@ -39,9 +39,20 @@ class Searcher(object):
             try:
                 with open(self.config.ignore_file, 'r') as inp:
                     for row in inp:
-                        dirs, files = glob_recursive(row.strip())
-                        excld_dirs.update(dirs)
-                        exclds.update(files)
+                        row = row.strip()
+                        if row[0] == '*':
+                            dirs, files = glob_recursive(row)
+                            excld_dirs.update(dirs)
+                            exclds.update(files)
+                        elif os.path.isfile(row):
+                            exclds.add(os/path.join('./', row))
+                        elif os.path.isdir(row):
+                            row = row.rstrip('/')
+                            if not row[:2] == './':
+                                row = os.path.join('./', row)
+                            excld_dirs.add(row)
+                        else:
+                            continue
             except IOError:
                 pass
 
