@@ -30,14 +30,7 @@ class PythonReader(BaseReader):
         # Create a branch in the tree for this file
         tree.touch(file_path)
 
-        # Read in all lines up to and including the line given
-        lines = []
-        with open(file_path) as file_:
-            for i, line in enumerate(file_):
-                if i <= file_indx:
-                    lines.append(line)
-                else:
-                    break
+        lines = self.get_lines(file_path, file_indx)
         assert len(lines) == file_line
 
         # Get indent of specified line

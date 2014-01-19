@@ -91,6 +91,20 @@ class BaseReader(object):
 
         return temp
 
+    @static_method
+    def get_lines(file_path, file_indx):
+        """Returns lines in a file leading upto a certain line (inclusive)."""
+        # Read in all lines up to and including the line given
+        lines = []
+        with open(file_path) as file_:
+            for i, line in enumerate(file_):
+                if i <= file_indx:
+                    lines.append(line)
+                else:
+                    break
+
+        return lines
+
     def build_tree(self, query):
         """Perform grep search and sort results into GrepTree."""
         # Grep for expresion
