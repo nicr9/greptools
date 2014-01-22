@@ -39,7 +39,7 @@ class Searcher(object):
             try:
                 with open(self.config.ignore_file, 'r') as inp:
                     for row in inp:
-                        row = row.strip()
+                        row = row.strip('\r\n')
                         if row[0] == '*':
                             dirs, files = glob_recursive(row)
                             excld_dirs.update(dirs)

@@ -39,7 +39,7 @@ class PythonReader(BaseReader):
         results = []
         for line_no in range(file_indx-1, -1, -1):
             # Ignore empty lines
-            if lines[line_no].strip():
+            if lines[line_no].strip('\r\n'):
                 # Get indent of relevant lines
                 next_indent = self._get_indent(lines[line_no])
 
@@ -60,7 +60,7 @@ class PythonReader(BaseReader):
         tree.append(
                 file_path,
                 file_line,
-                lines[file_indx].strip('\n'),
+                lines[file_indx].strip('\r\n'),
                 reversed(results)
                 )
 
