@@ -21,7 +21,7 @@ def glob_recursive(ptrn):
 
 class Searcher(object):
     """Constructs and executes grep queries."""
-    GREP_TEMPLATE = 'grep ./ -Irne "%s"%s%s'
+    GREP_TEMPLATE = 'grep ./ -Irn%se "%s"%s%s'
     INCLUDES_TEMPLATE = ' --include="%s"'
     EXCLUDES_TEMPLATE = ' --exclude="%s"'
     EXCLUDE_DIRS_TEMPLATE = ' --exclude-dir="%s"'
@@ -114,4 +114,7 @@ class Searcher(object):
         # Turn list of included filetypes into string of CLI flags
         inclds = ' '.join([self.INCLUDES_TEMPLATE % z for z in file_patterns])
 
-        return self.GREP_TEMPLATE % (exp, excld_flags, inclds)
+        # Other features to enable during the search
+        other_flags = 'i' if self.config.case_off else ''
+
+        return self.GREP_TEMPLATE % (other_flags, exp, excld_flags, inclds)

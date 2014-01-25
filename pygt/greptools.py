@@ -96,11 +96,18 @@ class GrepTools(object):
                 )
 
         inp_ops.add_argument(
-                '-i',
+                '-I',
                 default='.gitignore',
                 type=str,
                 help='File with list of file patterns to ignore.',
                 dest='ignore_file'
+                )
+
+        inp_ops.add_argument(
+                '-i',
+                action='store_true',
+                help="Turn off case sensitivity.",
+                dest='case_off',
                 )
 
         set_ops = parser.add_argument_group(
