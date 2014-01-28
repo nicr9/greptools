@@ -39,18 +39,21 @@ class Publisher(object):
         self.line_sum_template = self.LINE_SUM_TEMPS[outp_format]
         self.context_template = self.CONTEXT_TEMPS[outp_format]
 
-    def _format_line(self, line_number, line_text):
-        """Handles formatting lines displaying a result."""
-        return self.line_sum_template % (line_number, line_text)
+    def print_line(self, line_number, line_text, depth):
+        """Formats/prints lines."""
+        processed = self.line_sum_template % (line_number, line_text)
+        print '    '*(depth), processed
+
+    def print_context(self, context, depth):
+        """Formats/prints contexts."""
+        print '    '*depth + self.context_template % context
 
     def print_tree(self, tree):
-        # TODO: should call into separate handlers for printing context and lines
         for key, lines, depth in tree.walk():
-            print '    '*depth + self.context_template % key
+            self.print_context(key, depth)
             if lines:
                 for line_num, line_txt in lines:
-                    processed = self._format_line(line_num, line_txt)
-                    print '    '*(depth+1), processed
+                    self.print_line(line_num, line_txt, depth + 1)
                 print
 
         if self.debug:
