@@ -73,3 +73,17 @@ class GrepTree(object):
 
         # Increment counter
         self._count += 1
+
+    def walk(self, tree=None, depth=0):
+        """Traverses a GrepTree, yielding node details along the way."""
+        if not tree:
+            tree = self.data
+        for key, val in tree.iteritems():
+            if isinstance(val, dict):
+                yield key, val.get(GrepTree.LINES, []), depth
+                for cntx, lines, new_depth in self.walk(val, depth+1):
+                    yield cntx, lines, new_depth
+            elif isinstance(val, list):
+                pass
+            else:
+                print "%s type found: %s" % (type(val), val)
