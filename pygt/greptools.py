@@ -3,7 +3,7 @@ import sys
 import json
 from argparse import ArgumentParser, RawTextHelpFormatter
 
-from pygt.publisher import Publisher
+from pygt.publisher import ColouredPublisher, CleanPublisher
 
 def bullet_list(inp):
     """Joins elements in a list into a bullet formatted list."""
@@ -15,6 +15,11 @@ class GrepTools(object):
     # CONSTANTS
     DESCRIPTION = '%s Grep Tool.'
     EPILOG = 'Author: Nic Roland\nEmail: nicroland9@gmail.com\nTwitter: @nicr9_'
+
+    VALID_FORMATS = {
+            'colour': ColouredPublisher,
+            'clean': CleanPublisher,
+            }
 
     def __init__(self, reader_cls, args):
         self.reader_type = reader_cls.TYPE
@@ -62,8 +67,9 @@ class GrepTools(object):
 
         # Push to stdout or dump tree to pipe
         if sys.stdout.isatty():
-            publisher = Publisher(self.config)
-            publisher.print_tree(reader.tree)
+            publisher = self.VALID_FORMATS[self.config.outp_format]
+            pub = publisher(self.config)
+            pub.print_tree(reader.tree)
         else:
             reader.tree.dump(sys.stdout)
 
@@ -147,7 +153,7 @@ class GrepTools(object):
                 default='colour',
                 type=str,
                 help='Format to display output in:%s'
-                        % bullet_list(Publisher.VALID_FORMATS),
+                        % bullet_list(self.VALID_FORMATS),
                 dest='outp_format'
                 )
 
