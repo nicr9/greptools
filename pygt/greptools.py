@@ -3,7 +3,9 @@ import sys
 import json
 from argparse import ArgumentParser, RawTextHelpFormatter
 
-from pygt.publisher import ColouredPublisher, CleanPublisher
+from pygt.publisher import (ColouredPublisher,
+                            CleanPublisher,
+                            FilePublisher)
 
 def bullet_list(inp):
     """Joins elements in a list into a bullet formatted list."""
@@ -19,6 +21,7 @@ class GrepTools(object):
     VALID_FORMATS = {
             'colour': ColouredPublisher,
             'clean': CleanPublisher,
+            'files': FilePublisher,
             }
 
     def __init__(self, reader_cls, args):
