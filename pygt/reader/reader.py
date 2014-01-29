@@ -94,7 +94,6 @@ class BaseReader(object):
     @staticmethod
     def get_lines(file_path, file_indx):
         """Returns lines in a file leading upto a certain line (inclusive)."""
-        # Read in all lines up to and including the line given
         lines = []
         with open(file_path) as file_:
             for i, line in enumerate(file_):
