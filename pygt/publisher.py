@@ -1,3 +1,9 @@
+from pygt.greptree import count_lines
+
+def margin_vals(d):
+    max_len = max([len(key) for key in d.values()])
+    return {k: v + ' ' * (max_len - len(v)) for k, v in d.iteritems()}
+
 class BasePublisher(object):
     """Formats a GrepTree in a human readible format and sends to stdout."""
     # Constants
@@ -60,3 +66,17 @@ class FilePublisher(BasePublisher):
     def print_context(self, context, depth):
         if depth == 0:
             print self.CONTEXT_TEMPLATE % context
+
+class HistPublisher(BasePublisher):
+    def publish(self, tree):
+        root_keys = {key: key for key in tree.data.keys()}
+        m_keys = margin_vals(root_keys)
+        item_counts = {}
+        for key in root_keys:
+            st = tree.touch(key)
+            count = count_lines(st)
+            item_counts[key] = count
+            m_keys[key] += ' ' + str(count)
+
+        for key, val in margin_vals(m_keys).iteritems():
+            print val, '#' * item_counts[key]
