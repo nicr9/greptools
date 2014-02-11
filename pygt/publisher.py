@@ -15,7 +15,8 @@ class BasePublisher(object):
         """Formats/prints contexts."""
         raise NotImplementedError
 
-    def print_tree(self, tree):
+    def publish(self, tree):
+        """Print out information about a tree."""
         for key, lines, depth in tree.walk():
             self.print_context(key, depth)
             if lines:

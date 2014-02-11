@@ -72,7 +72,7 @@ class GrepTools(object):
         if sys.stdout.isatty():
             publisher = self.VALID_FORMATS[self.config.outp_format]
             pub = publisher(self.config)
-            pub.print_tree(reader.tree)
+            pub.publish(reader.tree)
         else:
             reader.tree.dump(sys.stdout)
 
