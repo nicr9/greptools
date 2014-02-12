@@ -20,7 +20,7 @@ class BasePublisher(object):
             self.print_context(key, depth)
             if lines:
                 for line_num, line_txt in lines:
-                    self.print_line(line_num, line_txt, depth + 1)
+                    self.print_line(line_num, line_txt, depth)
                 if self.BREAK_AFTER_LINES:
                     print
 
@@ -33,7 +33,7 @@ class ColouredPublisher(BasePublisher):
 
     def print_line(self, line_number, line_text, depth):
         processed = self.LINE_TEMPLATE % (line_number, line_text)
-        print '    '*(depth), processed
+        print '    '*(depth + 1), processed
 
     def print_context(self, context, depth):
         print '    '*depth + self.CONTEXT_TEMPLATE % context
@@ -44,7 +44,7 @@ class CleanPublisher(BasePublisher):
 
     def print_line(self, line_number, line_text, depth):
         processed = self.LINE_TEMPLATE % (line_number, line_text)
-        print '    '*(depth), processed
+        print '    '*(depth + 1), processed
 
     def print_context(self, context, depth):
         print '    '*depth + self.CONTEXT_TEMPLATE % context
