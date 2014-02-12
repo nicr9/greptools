@@ -163,6 +163,20 @@ class BaseReader(object):
 
     def inter(self):
         """Perform intersection set operation against GrepTree piped in."""
+        tree = self.build_tree(self.config.search_term)
+
+        func1 = lambda a, b: a & b
+        func2 = lambda a, b: list(a & b)
+
+        self.tree.data, self.tree._count = set_op(
+                self.tree.data,
+                tree.data,
+                func1,
+                func2
+                )
+
+    def fast_inter(self):
+        """Filter a tree using python's re module."""
         to_prune = []
         for keys, lines in self.tree.walk():
             lines = [z for z in lines if re.search(

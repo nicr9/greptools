@@ -61,8 +61,10 @@ class GrepTools(object):
                 reader.diff()
             elif self.config.exclude:
                 reader.exclude()
-            else:
+            elif self.config.inter:
                 reader.inter()
+            else:
+                reader.fast_inter()
 
         if self.config.debug:
             print "=== Results dict ==="
@@ -143,6 +145,13 @@ class GrepTools(object):
                 action='store_true',
                 help="Filter results from those piped in.",
                 dest='exclude',
+                )
+
+        set_ops.add_argument(
+                '-N',
+                action='store_true',
+                help="Perform a pure intersection with results piped in.",
+                dest='inter',
                 )
 
         outp_ops = parser.add_argument_group(
