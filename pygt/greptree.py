@@ -88,3 +88,17 @@ class GrepTree(object):
                 pass
             else:
                 print "%s type found: %s" % (type(val), val)
+
+    def prune(self, path):
+        if count_lines(self.touch_path(path)) == 0:
+            # access path's parent node
+            subtree = self.touch_path(path[:-1])
+
+            # delete node at path
+            if not subtree:
+                subtree = self.data
+            del subtree[path[-1]]
+
+    def set_lines(self, path, lines):
+        subtree = self.touch_path(path)
+        subtree[self.LINES] = lines
