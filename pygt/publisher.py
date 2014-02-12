@@ -16,8 +16,10 @@ class BasePublisher(object):
         raise NotImplementedError
 
     def print_tree(self, tree):
-        for key, lines, depth in tree.walk():
-            self.print_context(key, depth)
+        for keys, lines in tree.walk():
+            tail = keys[-1]
+            depth = len(keys) - 1
+            self.print_context(tail, depth)
             if lines:
                 for line_num, line_txt in lines:
                     self.print_line(line_num, line_txt, depth)
