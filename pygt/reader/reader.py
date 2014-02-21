@@ -176,7 +176,7 @@ class BaseReader(object):
                 )
 
     def fast_inter(self):
-        """Filter a tree using python's re module."""
+        """Perform intersection on tree using python's re module."""
         to_prune = []
         for keys, lines in self.tree.walk():
             lines = [z for z in lines if re.search(
@@ -189,6 +189,22 @@ class BaseReader(object):
 
         for _, keys in sorted(to_prune, reverse=True):
             self.tree.prune(keys)
+
+    def fast_exclude(self):
+        """Filter a tree using python's re module."""
+        to_prune = []
+        for keys, lines in self.tree.walk():
+            lines = [z for z in lines if not re.search(
+                                            self.config.search_term,
+                                            z[1])
+                                            ]
+            self.tree.set_lines(keys, lines)
+            if len(lines) == 0:
+                to_prune.append((len(keys), keys))
+
+        for _, keys in sorted(to_prune, reverse=True):
+            self.tree.prune(keys)
+
 
     def add_to_tree(self, results, tree=None):
         """Take result and add it to current GrepTree."""

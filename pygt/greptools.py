@@ -59,6 +59,8 @@ class GrepTools(object):
                 reader.union()
             elif self.config.diff:
                 reader.diff()
+            elif self.config.fast_exclude:
+                reader.fast_exclude()
             elif self.config.exclude:
                 reader.exclude()
             elif self.config.inter:
@@ -141,16 +143,23 @@ class GrepTools(object):
                 )
 
         set_ops.add_argument(
+                '-F',
+                action='store_true',
+                help="Fast filter results from those piped in.",
+                dest='fast_exclude',
+                )
+
+        set_ops.add_argument(
                 '-E',
                 action='store_true',
-                help="Filter results from those piped in.",
+                help="Slow filter results from those piped in.",
                 dest='exclude',
                 )
 
         set_ops.add_argument(
                 '-N',
                 action='store_true',
-                help="Perform a pure intersection with results piped in.",
+                help="Slow intersection with results piped in.",
                 dest='inter',
                 )
 
