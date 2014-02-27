@@ -1,4 +1,4 @@
-#! /usr/bin/python2.7
+#!env python2.7
 import sys
 from pygt.greptools import GrepTools
 from pygt.reader import PythonReader
