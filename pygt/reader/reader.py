@@ -178,33 +178,44 @@ class BaseReader(object):
     def fast_inter(self):
         """Perform intersection on tree using python's re module."""
         to_prune = []
+        total_lines = 0
         for keys, lines in self.tree.walk():
             lines = [z for z in lines if re.search(
                                             self.config.search_term,
                                             z[1])
                                             ]
             self.tree.set_lines(keys, lines)
-            if len(lines) == 0:
+            len_lines = len(lines)
+            if len_lines == 0:
                 to_prune.append((len(keys), keys))
+            else:
+                total_lines += len_lines
 
         for _, keys in sorted(to_prune, reverse=True):
             self.tree.prune(keys)
 
+        self.tree._count = total_lines
+
     def fast_exclude(self):
         """Filter a tree using python's re module."""
         to_prune = []
+        total_lines = 0
         for keys, lines in self.tree.walk():
             lines = [z for z in lines if not re.search(
                                             self.config.search_term,
                                             z[1])
                                             ]
             self.tree.set_lines(keys, lines)
-            if len(lines) == 0:
+            len_lines = len(lines)
+            if len_lines == 0:
                 to_prune.append((len(keys), keys))
+            else:
+                total_lines += len_lines
 
         for _, keys in sorted(to_prune, reverse=True):
             self.tree.prune(keys)
 
+        self.tree._count = total_lines
 
     def add_to_tree(self, results, tree=None):
         """Take result and add it to current GrepTree."""
