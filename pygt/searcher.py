@@ -40,7 +40,7 @@ class Searcher(object):
                 with open(self.config.ignore_file, 'r') as inp:
                     for row in inp:
                         row = row.strip('\r\n')
-                        if row[0] == '*':
+                        if row and row[0] == '*':
                             dirs, files = glob_recursive(row)
                             excld_dirs.update(dirs)
                             exclds.update(files)
@@ -85,7 +85,7 @@ class Searcher(object):
             if err.returncode == 1:
                 print "Couldn't find anything matching '%s'" % exp
             else:
-                print "Whoops, grep returned errorcode %d" % err.errorcode
+                print "Whoops, grep returned errorcode %d" % err.returncode
             sys_exit()
 
         return results
