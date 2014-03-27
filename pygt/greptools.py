@@ -99,7 +99,7 @@ class GrepTools(object):
                 )
 
         inp_ops = parser.add_argument_group(
-                "input arguements",
+                "input arguments",
                 "Control which files get searched by default."
                 )
 
