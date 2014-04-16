@@ -1,8 +1,8 @@
 import sys
 import re
 
-from pygt.greptree import GrepTree, count_lines
-from pygt.searcher import Searcher
+from greptools.greptree import GrepTree, count_lines
+from greptools.searcher import Searcher
 
 def warn(msg):
     """Print message in a warning header."""

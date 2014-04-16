@@ -3,7 +3,7 @@ import sys
 import json
 from argparse import ArgumentParser, RawTextHelpFormatter
 
-from pygt.publisher import (ColouredPublisher,
+from greptools.publisher import (ColouredPublisher,
                             CleanPublisher,
                             FilePublisher,
                             HistPublisher)
