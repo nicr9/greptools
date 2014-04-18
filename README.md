@@ -54,7 +54,9 @@ $ pygt traceback
 
 ## Command-line options
 
-You can use `pygt -i` to do a case-insensitive search.
+You can use `pygt -i <SEARCH_TERM>` to do a case-insensitive search.
+
+If you're experiencing issues, turn on debug output like so: `pygt -d <SEARCH_TERM>`.
 
 ## Author
 
