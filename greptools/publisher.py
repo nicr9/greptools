@@ -1,4 +1,4 @@
-from pygt.greptree import count_lines
+from greptools.greptree import count_lines
 
 def margin_vals(d):
     max_len = max([len(key) for key in d.values()])

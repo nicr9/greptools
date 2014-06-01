@@ -1,7 +1,7 @@
 #!env python2.7
 import sys
 from greptools.base import GrepTools
-from greptools.reader import PythonReader
+from greptools.reader import MarkdownReader
 
 if __name__ == "__main__":
-    GrepTools(PythonReader, sys.argv)
+    GrepTools(MarkdownReader, sys.argv)
