@@ -234,6 +234,58 @@ class BaseReader(object):
         raise NotImplementedError
 
 class BraceReader(BaseReader):
+    OPEN_BLOCK = '{'
+    CLOSE_BLOCK = '}'
+    END_LINE = ';'
+
+    def get_context(self, file_path, file_line, tree=None):
+        all_chars = self.CLOSE_BLOCK + self.OPEN_BLOCK + self.END_LINE
+        # Zero-based index for file line number
+        file_indx = file_line - 1
+
+        if tree is None:
+            tree = self.tree
+
+        # Create a branch in the tree for this file
+        tree.touch(file_path)
+
+        lines = self.get_lines(file_path, file_indx)
+        assert len(lines) == file_line
+
+        # Map line lengths
+        line_lengths = {}
+        running_count = 0
+        for i in range(file_line):
+            running_count += len(lines[i])
+            line_lengths[i] = running_count
+
+        next_ = line_lengths[file_indx]
+        full_text = '\n'.join(lines)
+
+        results = []
+        while True:
+            end = self.recursive_rfind(
+                    full_text,
+                    self.OPEN_BLOCK,
+                    self.CLOSE_BLOCK,
+                    next_
+                    )
+
+            start = self.recursive_rfind(
+                    full_text,
+                    all_chars,
+                    '',
+                    end
+                    )
+
+            cntxt = full_text[start:end].strip(all_chars).strip()
+            results.append(cntxt)
+            next_ = end
+            if end == 0:
+                break
+
+        return results
+
     @staticmethod
     def recursive_rfind(text, find, stepover, end):
         def _rfind(text, exp, find, stepover, start):
@@ -248,7 +300,7 @@ class BraceReader(BaseReader):
 
                 # Decide what to do next
                 if not case:
-                    return 0
+                    return len(text)
                 elif case in find:
                     return result
                 elif case in stepover:

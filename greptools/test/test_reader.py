@@ -1,5 +1,8 @@
 import unittest
+
 from mock import Mock
+from tempfile import NamedTemporaryFile as TF
+
 from ..reader.reader import BraceReader
 
 class TestBraceReader(unittest.TestCase):
@@ -28,6 +31,20 @@ class TestBraceReader(unittest.TestCase):
         expected = 11
         result = self.br.recursive_rfind(example, '{', '}', 76)
         self.assertEqual(result, expected)
+
+    def test_get_context(self):
+        text = """class A(blah) {
+    func b(blah, blah) {
+        sample text;
+    }
+}
+"""
+        with TF(delete=False) as outp:
+            outp.write(text)
+            file_name = outp.name
+
+        print self.br.get_context(file_name, 3)
+
 
 if __name__ == "__main__":
     unittest.main()
