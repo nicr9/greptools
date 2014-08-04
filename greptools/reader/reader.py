@@ -232,3 +232,29 @@ class BaseReader(object):
         Given the file path and the line number, determine the context of that line.
         """
         raise NotImplementedError
+
+class BraceReader(BaseReader):
+    @staticmethod
+    def recursive_rfind(text, find, stepover, end):
+        def _rfind(text, exp, find, stepover, start):
+            while True:
+                # Search
+                match = re.search(exp, text[start:])
+
+                case = None
+                if match:
+                    result = start + match.start() + 1
+                    case = match.group(0)
+
+                # Decide what to do next
+                if not case:
+                    return 0
+                elif case in find:
+                    return result
+                elif case in stepover:
+                    start = _rfind(text, exp, find, stepover, result)
+
+        exp = r"[%s%s]" % (find, stepover)
+        start = len(text) - end
+        result = _rfind(''.join(reversed(text)), exp, find, stepover, start)
+        return len(text) - result
