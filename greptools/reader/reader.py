@@ -239,7 +239,6 @@ class BraceReader(BaseReader):
     END_LINE = ';'
 
     def get_context(self, file_path, file_line, tree=None):
-        all_chars = self.CLOSE_BLOCK + self.OPEN_BLOCK + self.END_LINE
         # Zero-based index for file line number
         file_indx = file_line - 1
 
@@ -252,14 +251,8 @@ class BraceReader(BaseReader):
         lines = self.get_lines(file_path, file_indx)
         assert len(lines) == file_line
 
-        # Map line lengths
-        line_lengths = {}
-        running_count = 0
-        for i in range(file_line):
-            running_count += len(lines[i])
-            line_lengths[i] = running_count
-
-        next_ = line_lengths[file_indx]
+        all_chars = self.CLOSE_BLOCK + self.OPEN_BLOCK + self.END_LINE
+        next_ = len('\n'.join(lines[:file_indx]))
         full_text = '\n'.join(lines)
 
         results = []
