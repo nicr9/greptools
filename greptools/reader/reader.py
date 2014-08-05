@@ -274,7 +274,7 @@ class BraceReader(BaseReader):
             cntxt = full_text[start:end].strip(all_chars).strip()
             results.append(cntxt)
             next_ = end
-            if end == 0:
+            if start == 0:
                 break
 
         return results
