@@ -7,6 +7,6 @@ setup(
         author='Nic Roland',
         author_email='nicroland9@gmail.com',
         packages=['greptools', 'greptools.reader'],
-        scripts = ['bin/pygt', 'bin/mdgt'],
+        scripts = ['bin/pygt', 'bin/mdgt', 'bin/javagt'],
         long_description=open('README.md').read(),
         )

@@ -234,6 +234,11 @@ class BaseReader(object):
         raise NotImplementedError
 
 class BraceReader(BaseReader):
+    """A reader for languages that use braces to inclose code blocks.
+
+    To use this: inherit and implement OPEN_BLOCK, CLOSE_BLOCK, END_LINE and
+    _parse_line().
+    """
     OPEN_BLOCK = '{'
     CLOSE_BLOCK = '}'
     END_LINE = ';'
@@ -271,8 +276,9 @@ class BraceReader(BaseReader):
                     end
                     )
 
-            cntxt = full_text[start:end].strip(all_chars).strip()
-            results.append(cntxt)
+            cntxt = full_text[start:end].strip(all_chars)
+            if self._line_match(cntxt):
+                results.append(self._parse_line(cntxt))
             next_ = end
             if start == 0:
                 break
@@ -303,3 +309,6 @@ class BraceReader(BaseReader):
         start = len(text) - end
         result = _rfind(''.join(reversed(text)), exp, find, stepover, start)
         return len(text) - result
+
+    def _parse_line(self, line_text):
+        raise NotImplementedError
