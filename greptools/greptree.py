@@ -74,10 +74,13 @@ class GrepTree(object):
         # Increment counter
         self._count += 1
 
-    def walk(self, tree=None, kpath=[]):
+    def walk(self, tree=None, kpath=None):
         """Traverses a GrepTree, yielding node details along the way."""
-        if not tree:
+        if tree is None:
             tree = self.data
+        if kpath is None:
+            kpath = []
+
         for key, val in tree.iteritems():
             if isinstance(val, dict):
                 new_kpath = kpath + [key]
