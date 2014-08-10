@@ -283,7 +283,13 @@ class BraceReader(BaseReader):
             if start == 0:
                 break
 
-        return results
+        # Add this entry to context tree
+        tree.append(
+                file_path,
+                file_line,
+                lines[file_indx].strip('\r\n'),
+                reversed(results)
+                )
 
     @staticmethod
     def recursive_rfind(text, find, stepover, end):
