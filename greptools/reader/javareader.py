@@ -19,4 +19,6 @@ class JavaReader(BraceReader):
             return False
 
     def _parse_line(self, line_text):
-        return line_text.strip()
+        stripped = [z.strip() for z in re.split('[\n\r]', line_text)]
+        filtered = [z for z in stripped if z]
+        return filtered[-1]
