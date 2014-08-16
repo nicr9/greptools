@@ -4,10 +4,11 @@ from .reader import BraceReader
 class JavaReader(BraceReader):
     """An implementation of a Reader for Java code."""
     # CONSTANTS
-    ALL_ATTRS = "(abstract|static|final|strictfp|private|protected|public|class|\s*)*"
+    # two or more of these because attrs are always followed by some whitespace
+    ALL_ATTRS = "(abstract|static|final|strictfp|private|protected|public|class|\s+){2,}"
     CLASS_FUNC_RE = re.compile(
             ALL_ATTRS + 
-            "(.*?)\s*[\n{]"
+            "([a-zA-Z0-9_]+)\s*"
             )
     FILE_PATTERNS = ['*.java']
     TYPE = 'Java'
