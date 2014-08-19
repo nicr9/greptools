@@ -1,4 +1,4 @@
-# PYGT
+# GrepTools
 
 ## Installation
 
@@ -10,13 +10,13 @@ sudo python2.7 setup.py install
 
 ## About
 
-`pygt` is a  CLI search tool similar to `grep` or `ack`. Where it differs is that it lists resulting lines by the method and/or class they belong to.
+`greptools` is a collection of CLI search tools similar to `grep` or `ack`. These tools were designed with programmers in mind and each tool is targetted at a different language or file format. Each language specific tool searches files relating to that language and sorts results into a "context tree". The definition of content tree differs from tool to tool but typically it refers to the functions and classes to which each result comes from.
 
-`pygt` is specifically for searching Python source code and will only look inside .py files. It initially uses `grep` to perform the actual searching, and for each result it opens the file and reads it to decide which class/function it belongs in based on the indentation of the file.
+Each tool uses `grep` to perform the actual searching, and for each result it opens the file and reads it to decide which class/function it belongs in based on the indentation of the file.
 
 ## Usage
 
-It's simple to use. Here's an example looking for usages of the word "traceback" inside a subdirectory of the core Python source code: 
+It's simple to use. Here's an example using the tool for python code: `pygt`. Here, we're just looking for usages of the word "traceback" inside a subdirectory of the core Python source code: 
 
 ```
 $ cd Python-2.7.3/Lib/multiprocessing
@@ -54,9 +54,32 @@ $ pygt traceback
 
 ## Command-line options
 
-You can use `pygt -i <SEARCH_TERM>` to do a case-insensitive search.
+These options should apply to all the available greptools so just use the name of the tool you're using in place of `<greptool>` below:
 
-If you're experiencing issues, turn on debug output like so: `pygt -d <SEARCH_TERM>`.
+You can use `<greptool> -i <SEARCH_TERM>` to do a case-insensitive search.
+
+If you're experiencing issues, turn on debug output like so: `<greptool> -d <SEARCH_TERM>`.
+
+## Writing a new greptool
+
+Here are the steps to creating a new greptool for whatever language or filetype you can think of:
+
+#.1 Implement a new Reader class.
+    * You can inherit from some of the ones in greptools.reader.reader that are generalised for certain language styles (for example: indentation vs. braces).
+#.2 Add relative import to greptools/reader/__init__.py
+    * Then add the new class name to __all__.
+#.3 Copy a script in `bin/` and rename it to `"%sgt" % file_extension`
+    * <file_extension>gt is the current convention for all tool names.
+#.4 Change a few things in your new script.
+    * It will need to import your class and pass it while instantiating a GrepTools object.
+#.5 Add the name of that script to the list in setup.py.
+#.6 Reinstall.
+    * `sudo python2.7 setup.py install`.
+    * This will add the tool to your path along with the others.
+
+### P.S.
+
+These steps are just a rough draft for now. I will expand on them in future releases.
 
 ## Author
 
