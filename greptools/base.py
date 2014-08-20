@@ -75,8 +75,14 @@ class GrepTools(object):
             print json.dumps(reader.tree.data, indent=4) + '\n'
 
         # Push to stdout or dump tree to pipe
-        if sys.stdout.isatty():
-            publisher = self.VALID_FORMATS[self.config.outp_format]
+        if self.config.force_publish:
+            format_ = 'clean' if \
+                     self.config.outp_format == 'colour' \
+                 else \
+                     self.config.outp_format
+
+        if sys.stdout.isatty() or self.config.force_publish:
+            publisher = self.VALID_FORMATS[format_]
             pub = publisher(self.config)
             pub.publish(reader.tree)
         else:
@@ -185,6 +191,13 @@ class GrepTools(object):
                 action='store_true',
                 help="Display additional information to aid debugging.",
                 dest='debug'
+                )
+
+        outp_ops.add_argument(
+                '-p',
+                action='store_true',
+                help="Force non-json output when piping to another process.",
+                dest='force_publish'
                 )
 
         return parser.parse_args(argv[1:])
