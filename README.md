@@ -60,6 +60,24 @@ You can use `<greptool> -i <SEARCH_TERM>` to do a case-insensitive search.
 
 If you're experiencing issues, turn on debug output like so: `<greptool> -d <SEARCH_TERM>`.
 
+### Set operations
+
+One of the really useful features of any greptool is that they support treating the results like sets and quickly filtering results by applying set operations.
+
+Let's look at a simple example.
+
+Let's say you need to quickly look through all the `import`s in your python project. That's simple: `pygt import`. Now lets say you want to narrow down those results to those that mention `os.path`. This can be done by piping the results from our earlier search into a new search for the new term like so `pygt import | pygt os.path`. This will effectively perform an intersection on the results and provide only matches that contain both `import` and `os.path`.
+
+You can perform other set operations too! You can filter out results containing `os.path` by piping like we did before but setting the `-F` flag on the second search like so: `pygt import | pygt -F os.path`.
+
+You can add both sets of results together with `-U` and only return results that contain one and not the other by using `-X`.
+
+Both the default (intersection) set op and the filter set op shown above aren't actually true set operations. It turns out treating search results like sets and performing these operations isn't that fast as we hoped so we made a compromise. These two work by iterating through that first set of results and checking for the second search term using python's built in regex engine. If you experience issues from the use of two different engines you can choose to use the slow intersection (`-N`) and the slow filter (`-E`) instead which work by building both sets of results and comparing.
+
+### Caveats with using set operations
+
+In order to use the pipe to pass one set of results to an other pygt process we had to serialise them first. This means that if you try piping the results to any other process (like `less` for example) they'll show up in json format. This will happen even if you use other formats like the histogram format. If you want to avoid this you should use `-p`. This will force it to print it out in what ever format you choose (except the default colour format (it will be changed to clean) because it looks really ugly when it's piped out).
+
 ## Writing a new greptool
 
 Here are the steps to creating a new greptool for whatever language or filetype you can think of:
