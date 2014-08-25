@@ -1,6 +1,6 @@
 """The GrepTree data structure centers around the idea of a `context`. A context
 is essentially the function/class/method/file that a line belongs to. A GrepTree
-is a nested tree-style collection of these contexts, with the furthest point on
+is a nested tree style collection of these contexts, with the furthest point on
 each branch containing a list of lines that come from that context.
 """
 import json

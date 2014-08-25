@@ -9,7 +9,8 @@ from greptools.publisher import (ColouredPublisher,
                             HistPublisher)
 
 def bullet_list(inp):
-    """Joins elements in a list into a bullet formatted list."""
+    """Convienience function that joins elements of a list into a bullet
+    formatted list."""
     return '\n' + '\n'.join(['- ' + z for z in inp])
 
 class GrepTools(object):
