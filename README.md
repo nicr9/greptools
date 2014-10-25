@@ -82,16 +82,16 @@ In order to use the pipe to pass one set of results to an other pygt process we 
 
 Here are the steps to creating a new greptool for whatever language or filetype you can think of:
 
-#.1 Implement a new Reader class.
+### 1) Implement a new Reader class.
     * You can inherit from some of the ones in greptools.reader.reader that are generalised for certain language styles (for example: indentation vs. braces).
-#.2 Add relative import to greptools/reader/__init__.py
+### 2) Add relative import to greptools/reader/__init__.py
     * Then add the new class name to __all__.
-#.3 Copy a script in `bin/` and rename it to `"%sgt" % file_extension`
+### 3) Copy a script in `bin/` and rename it to `"%sgt" % file_extension`
     * <file_extension>gt is the current convention for all tool names.
-#.4 Change a few things in your new script.
+### 4) Change a few things in your new script.
     * It will need to import your class and pass it while instantiating a GrepTools object.
-#.5 Add the name of that script to the list in setup.py.
-#.6 Reinstall.
+### 5) Add the name of that script to the list in setup.py.
+### 6) Reinstall.
     * `sudo python2.7 setup.py install`.
     * This will add the tool to your path along with the others.
 
