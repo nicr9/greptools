@@ -243,6 +243,32 @@ class BraceReader(BaseReader):
     CLOSE_BLOCK = '}'
     END_LINE = ';'
 
+    def _scan_file(self, full_text, next_ref):
+        results = []
+        while True:
+            end = self.recursive_rfind(
+                    full_text,
+                    self.OPEN_BLOCK,
+                    self.CLOSE_BLOCK,
+                    next_ref
+                    )
+
+            start = self.recursive_rfind(
+                    full_text,
+                    self.all_chars,
+                    '',
+                    end
+                    )
+
+            cntxt = full_text[start:end].strip(self.all_chars)
+            if self._line_match(cntxt):
+                results.append(self._parse_line(cntxt))
+            next_ref = end
+            if start == 0:
+                break
+
+        return results
+
     def get_context(self, file_path, file_line, tree=None):
         # Zero-based index for file line number
         file_indx = file_line - 1
@@ -256,32 +282,11 @@ class BraceReader(BaseReader):
         lines = self.get_lines(file_path, file_indx)
         assert len(lines) == file_line
 
-        all_chars = self.CLOSE_BLOCK + self.OPEN_BLOCK + self.END_LINE
-        next_ = len('\n'.join(lines[:file_indx]))
+        self.all_chars = self.CLOSE_BLOCK + self.OPEN_BLOCK + self.END_LINE
         full_text = '\n'.join(lines)
+        next_ref = len('\n'.join(lines[:file_indx]))
 
-        results = []
-        while True:
-            end = self.recursive_rfind(
-                    full_text,
-                    self.OPEN_BLOCK,
-                    self.CLOSE_BLOCK,
-                    next_
-                    )
-
-            start = self.recursive_rfind(
-                    full_text,
-                    all_chars,
-                    '',
-                    end
-                    )
-
-            cntxt = full_text[start:end].strip(all_chars)
-            if self._line_match(cntxt):
-                results.append(self._parse_line(cntxt))
-            next_ = end
-            if start == 0:
-                break
+        results = self._scan_file(full_text, next_ref)
 
         # Add this entry to context tree
         tree.append(
