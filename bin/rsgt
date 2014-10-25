@@ -1,0 +1,7 @@
+#!env python2.7
+import sys
+from pygt.greptools import GrepTools
+from pygt.reader import RustReader
+
+if __name__ == "__main__":
+    GrepTools(RustReader, sys.argv)
