@@ -76,11 +76,10 @@ class GrepTools(object):
             print dumps(reader.tree.data, indent=4) + '\n'
 
         # We can't publish with colour to a pipe because it's ugly
+        format_ = self.config.outp_format
         if self.config.force_publish:
-            format_ = 'clean' \
-                 if self.config.outp_format == 'colour' \
-                 else \
-                     self.config.outp_format
+            if format_ == 'colour':
+                format_ = 'clean'
 
         # Push to stdout or dump tree to pipe
         if stdout.isatty() or self.config.force_publish:
