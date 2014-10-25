@@ -1,6 +1,6 @@
-"""Core of the package, contains the bootstrapping logic."""
-import sys
-import json
+"""Core of the package, contains the bootstrapping logic for each tool."""
+from sys import stdout, stdin, exit
+from json import dumps
 from argparse import ArgumentParser, RawTextHelpFormatter
 
 from greptools.publisher import (ColouredPublisher,
@@ -9,7 +9,8 @@ from greptools.publisher import (ColouredPublisher,
                             HistPublisher)
 
 def bullet_list(inp):
-    """Joins elements in a list into a bullet formatted list."""
+    """Convienience function that joins elements of a list into a bullet
+    formatted list."""
     return '\n' + '\n'.join(['- ' + z for z in inp])
 
 class GrepTools(object):
@@ -33,7 +34,7 @@ class GrepTools(object):
         self.config = self.parse_args(args)
 
         # Disable config.debug if stdout is a pipe
-        if not sys.stdout.isatty():
+        if not stdout.isatty() and not self.config.force_publish:
             self.config.debug = False
 
         if self.config.debug:
@@ -41,16 +42,16 @@ class GrepTools(object):
             print args, '\n'
             config_pretty = {x:y for x, y in self.config._get_kwargs()}
             print "=== pygt config ==="
-            print json.dumps(config_pretty, indent=4) + '\n'
+            print dumps(config_pretty, indent=4) + '\n'
 
         self.run()
 
     def run(self):
         """Execute the search, filter, format, print results."""
         # Either load results from pipe or grep new ones
-        if sys.stdin.isatty():
+        if stdin.isatty():
             if self.config.search_term is None:
-                sys.exit()
+                exit()
             else:
                 reader = self.reader_cls.from_grep(self.config)
         else:
@@ -72,15 +73,21 @@ class GrepTools(object):
 
         if self.config.debug:
             print "=== Results dict ==="
-            print json.dumps(reader.tree.data, indent=4) + '\n'
+            print dumps(reader.tree.data, indent=4) + '\n'
+
+        # We can't publish with colour to a pipe because it's ugly
+        format_ = self.config.outp_format
+        if self.config.force_publish:
+            if format_ == 'colour':
+                format_ = 'clean'
 
         # Push to stdout or dump tree to pipe
-        if sys.stdout.isatty():
-            publisher = self.VALID_FORMATS[self.config.outp_format]
+        if stdout.isatty() or self.config.force_publish:
+            publisher = self.VALID_FORMATS[format_]
             pub = publisher(self.config)
             pub.publish(reader.tree)
         else:
-            reader.tree.dump(sys.stdout)
+            reader.tree.dump(stdout)
 
     def parse_args(self, argv):
         """For parsing CLI arguements."""
@@ -185,6 +192,13 @@ class GrepTools(object):
                 action='store_true',
                 help="Display additional information to aid debugging.",
                 dest='debug'
+                )
+
+        outp_ops.add_argument(
+                '-p',
+                action='store_true',
+                help="Force non-json output when piping to another process.",
+                dest='force_publish'
                 )
 
         return parser.parse_args(argv[1:])

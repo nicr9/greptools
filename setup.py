@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
         name='greptools',
-        version='v0.9',
+        version='v0.9a',
         description='A collection of grep wrappers for various filetypes.',
         author='Nic Roland',
         author_email='nicroland9@gmail.com',
