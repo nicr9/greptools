@@ -22,19 +22,7 @@ class MarkdownReader(BaseReader):
             if match:
                 return len(match.group(1))
 
-    def get_context(self, file_path, file_line, tree=None):
-        # Zero-based index for file line number
-        file_indx = file_line - 1
-
-        if tree is None:
-            tree = self.tree
-
-        # Create a branch in the tree for this file
-        tree.touch(file_path)
-
-        lines = self.get_lines(file_path, file_indx)
-        assert len(lines) == file_line
-
+    def find_context(self, lines, file_indx):
         # Recursively trace headers of file
         init_depth = self._get_header_depth(lines, file_indx)
         results = []
@@ -43,11 +31,4 @@ class MarkdownReader(BaseReader):
                 results.append(lines[indx].strip())
                 init_depth = depth
 
-        # Add this entry to context tree
-        tree.append(
-                file_path,
-                file_line,
-                lines[file_indx].strip('\r\n'),
-                reversed(results)
-                )
-
+        return reversed(results)

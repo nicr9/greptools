@@ -51,8 +51,8 @@ class BaseReader(object):
 
     - FILE_PATTERNS : a list of file extensions to pass to Searcher.
     - TYPE : The name of the programming language this Reader specialises in
-    - get_context() : Given a file and line number,
-                        this should return the lines context."""
+    - find_context() : Given the lines of a file and a line index,
+            return the context of that line."""
 
     # Things that should be defined by subclass
     FILE_PATTERNS = []
@@ -117,8 +117,28 @@ class BaseReader(object):
 
         return tree
 
-    # TODO: The methods below should print additional debug info of the comparison tree
+    def add_context(self, file_path, file_line, tree=None):
+        # Zero-based index for file line number
+        file_indx = file_line - 1
 
+        if tree is None:
+            tree = self.tree
+
+        # Create a branch in the tree for this file
+        tree.touch(file_path)
+
+        lines = self.get_lines(file_path, file_indx)
+        assert len(lines) == file_line
+
+        # Add this entry to context tree
+        tree.append(
+                file_path,
+                file_line,
+                lines[file_indx].strip('\r\n'),
+                self.find_context(lines, file_indx)
+                )
+
+    # TODO: The methods below should print comparison tree debug info
     def union(self):
         """Perform union set operation against GrepTree piped in."""
         tree = self.build_tree(self.config.search_term)
@@ -225,19 +245,19 @@ class BaseReader(object):
         for row in results:
             file_name, file_line, _ = row.split(':')[:3]
 
-            self.get_context(file_name, int(file_line), tree)
+            self.add_context(file_name, int(file_line), tree)
 
-    def get_context(self, file_path, file_line, tree=None):
+    def find_context(self, lines, file_indx):
         """
-        Given the file path and the line number, determine the context of that line.
+        Given the lines of a file and the line index, determine the context of that line.
         """
         raise NotImplementedError
 
 class BraceReader(BaseReader):
     """A reader for languages that use braces to inclose code blocks.
 
-    To use this: inherit and implement OPEN_BLOCK, CLOSE_BLOCK, END_LINE and
-    _parse_line().
+    To use this: inherit and implement OPEN_BLOCK, CLOSE_BLOCK, END_LINE,
+    _parse_line(), as well as anything needed for implementing BaseReader.
     """
     OPEN_BLOCK = '{'
     CLOSE_BLOCK = '}'
@@ -269,32 +289,14 @@ class BraceReader(BaseReader):
 
         return results
 
-    def get_context(self, file_path, file_line, tree=None):
-        # Zero-based index for file line number
-        file_indx = file_line - 1
-
-        if tree is None:
-            tree = self.tree
-
-        # Create a branch in the tree for this file
-        tree.touch(file_path)
-
-        lines = self.get_lines(file_path, file_indx)
-        assert len(lines) == file_line
-
+    def find_context(self, lines, file_indx):
         self.all_chars = self.CLOSE_BLOCK + self.OPEN_BLOCK + self.END_LINE
         full_text = '\n'.join(lines)
         next_ref = len('\n'.join(lines[:file_indx]))
 
         results = self._scan_file(full_text, next_ref)
 
-        # Add this entry to context tree
-        tree.append(
-                file_path,
-                file_line,
-                lines[file_indx].strip('\r\n'),
-                reversed(results)
-                )
+        return reversed(results)
 
     @staticmethod
     def recursive_rfind(text, find, stepover, end):

@@ -14,19 +14,7 @@ class IndentReader(BaseReader):
 
         return re.sub(self.TAB, self.FOUR_SPACES, indent)
 
-    def get_context(self, file_path, file_line, tree=None):
-        # Zero-based index for file line number
-        file_indx = file_line - 1
-
-        if tree is None:
-            tree = self.tree
-
-        # Create a branch in the tree for this file
-        tree.touch(file_path)
-
-        lines = self.get_lines(file_path, file_indx)
-        assert len(lines) == file_line
-
+    def find_context(self, lines, file_indx):
         # Get indent of specified line
         init_indent = self._get_indent(lines[file_indx])
 
@@ -37,7 +25,7 @@ class IndentReader(BaseReader):
                 # Get indent of relevant lines
                 next_indent = self._get_indent(lines[line_no])
 
-                # if line has less indentation 
+                # if line has less indentation
                 if len(next_indent) < len(init_indent):
                     # Ignore lines that aren't a function or a class
                     if self._line_match(lines[line_no]):
@@ -49,14 +37,7 @@ class IndentReader(BaseReader):
                     # then change init_indent
                     init_indent = next_indent
 
-        # Add this entry to context tree
-        tree.append(
-                file_path,
-                file_line,
-                lines[file_indx].strip('\r\n'),
-                reversed(results)
-                )
-
+        return reversed(results)
 
 class PythonReader(IndentReader):
     """An implementation of a Reader for Python code."""

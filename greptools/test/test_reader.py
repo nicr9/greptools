@@ -32,7 +32,7 @@ class TestBraceReader(unittest.TestCase):
         result = self.br.recursive_rfind(example, '{', '}', 76)
         self.assertEqual(result, expected)
 
-    def test_get_context(self):
+    def test_add_context(self):
         text = """class A(blah) {
     func b(blah, blah) {
         sample text;
@@ -43,8 +43,7 @@ class TestBraceReader(unittest.TestCase):
             outp.write(text)
             file_name = outp.name
 
-        print self.br.get_context(file_name, 3)
-
+        print self.br.add_context(file_name, 3)
 
 if __name__ == "__main__":
     unittest.main()
