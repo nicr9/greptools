@@ -116,5 +116,6 @@ class Searcher(object):
 
         # Other features to enable during the search
         other_flags = 'i' if self.config.case_off else ''
+        exp = "\<%s\>" % exp if self.config.strict_on else exp
 
         return self.GREP_TEMPLATE % (other_flags, exp, inclds, excld_flags)

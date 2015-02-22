@@ -132,6 +132,13 @@ class GrepTools(object):
                 dest='case_off',
                 )
 
+        inp_ops.add_argument(
+                '-s',
+                action='store_true',
+                help="Turn on absolute match.",
+                dest='strict_on',
+                )
+
         set_ops = parser.add_argument_group(
                 "set operations",
                 "Used when piping one set of results into an other."
