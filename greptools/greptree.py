@@ -20,7 +20,9 @@ class GrepTree(object):
     """Data structure for storing results as a tree of nested contexts."""
     LINES = 'lines'
 
-    def __init__(self, data={}):
+    def __init__(self, data=None):
+        if not data:
+            data = {}
         self.data = data
         self._count = 0
 
