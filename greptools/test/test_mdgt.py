@@ -45,9 +45,47 @@ I hope I don't get sick on the bus.
         self.assertEqual(['# Header 1'], b.keys())
 
         c = b['# Header 1']
-        self.assertEqual(['## Header 2', 'lines'], c.keys())
-        self.assertEqual([(3, "The keyword is 'journey'.")], c['lines'])
+        self.assertEqual(
+                ['## Header 2', 'lines'],
+                c.keys()
+                )
+        self.assertEqual(
+                [(3, "The keyword is 'journey'.")],
+                c['lines']
+                )
 
         d = c['## Header 2']
         self.assertEqual(['lines'], d.keys())
-        self.assertEqual([(7, "I'm going for a journey on a bus.")], d['lines'])
+        self.assertEqual(
+                [(7, "I'm going for a journey on a bus.")],
+                d['lines']
+                )
+
+        # search for 'bus'
+        tree = self.mdgt.build_tree('bus')
+
+        a = tree.data
+        self.assertEqual([self.test_file], a.keys())
+
+        b = a[self.test_file]
+        self.assertEqual(['# Header 1'], b.keys())
+
+        c = b['# Header 1']
+        self.assertEqual(['## Header 2'], c.keys())
+
+        d = c['## Header 2']
+        self.assertEqual(
+                set(['### Closed header ###', 'lines']),
+                set(d.keys())
+                )
+        self.assertEqual(
+                [(7, "I'm going for a journey on a bus.")],
+                d['lines']
+                )
+
+        e = d['### Closed header ###']
+        self.assertEqual(['lines'], e.keys())
+        self.assertEqual(
+                [(11, "I hope I don't get sick on the bus.")],
+                e['lines']
+                )
