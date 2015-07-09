@@ -16,6 +16,21 @@ I'm going for a journey on a bus.
 ### Closed header ###
 
 I hope I don't get sick on the bus.
+
+Setext Header
+=============
+
+Setext headers are underlined with = or -
+
+Setext 2
+---------
+
+Underlined sub section
+
+Setext Short
+-
+
+The underlined syntax can be any length.
 """
 
     @classmethod
@@ -88,4 +103,34 @@ I hope I don't get sick on the bus.
         self.assertEqual(
                 [(11, "I hope I don't get sick on the bus.")],
                 e['lines']
+                )
+
+    def test_setext_headers(self):
+        # search for 'journey'
+        tree = self.mdgt.build_tree('underlined')
+
+        a = tree.data
+        self.assertEqual([self.test_file], a.keys())
+
+        b = a[self.test_file]
+        self.assertEqual(['Setext Header'], b.keys())
+
+        c = b['Setext Header']
+        self.assertEqual(
+                set(['Setext Short', 'lines']),
+                set(c.keys())
+                )
+        self.assertEqual(
+                [(16, "Setext headers are underlined with = or -")],
+                c['lines']
+                )
+
+        d = c['Setext Short']
+        self.assertEqual(
+                ['lines'],
+                d.keys()
+                )
+        self.assertEqual(
+                [(26, "The underlined syntax can be any length.")],
+                d['lines']
                 )
