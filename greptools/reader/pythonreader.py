@@ -2,6 +2,7 @@ import re
 from .reader import BaseReader
 
 class IndentReader(BaseReader):
+    INDENT_RE = re.compile("^(\s*)")
     TAB = '\t'
     FOUR_SPACES = '    '
 
@@ -42,7 +43,6 @@ class IndentReader(BaseReader):
 class PythonReader(IndentReader):
     """An implementation of a Reader for Python code."""
     # CONSTANTS
-    INDENT_RE = re.compile("^(\s*)")
     DEF_CLASS_RE = re.compile("^\s*(def|class) (.*?)[(:]")
     FILE_PATTERNS = ['*.py']
     TYPE = 'Python'
