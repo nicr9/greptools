@@ -1,5 +1,5 @@
 from setuptools import setup
-VERSION = '0.9a'
+VERSION = '0.9b'
 
 try:
     import subprocess
@@ -22,7 +22,7 @@ setup(
         long_description=open('README.rst').read(),
         license='MIT',
         classifiers=[
-            'Development Status :: 3 - Alpha',
+            'Development Status :: 4 - Beta',
             'Environment :: Console',
             'Intended Audience :: Developers',
             'License :: OSI Approved :: MIT License',
