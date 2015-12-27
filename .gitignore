@@ -2,3 +2,5 @@
 *.pyc
 README.rst
 greptools.egg-info/
+build/
+dist/

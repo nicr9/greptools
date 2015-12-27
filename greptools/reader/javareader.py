@@ -7,7 +7,7 @@ class JavaReader(BraceReader):
     # two or more of these because attrs are always followed by some whitespace
     ALL_ATTRS = "(abstract|static|final|strictfp|private|protected|public|class|\s+){2,}"
     CLASS_FUNC_RE = re.compile(
-            ALL_ATTRS + 
+            ALL_ATTRS +
             "([a-zA-Z0-9_]+)\s*"
             )
     FILE_PATTERNS = ['*.java']
