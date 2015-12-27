@@ -46,6 +46,9 @@ def set_op(a_subtree, b_subtree, func1, func2):
 
     return _set_op(a_subtree, b_subtree, func1, func2), sum(count)
 
+def hide_method_args(text):
+    return re.sub(r'\(.*\)', '(...)', text)
+
 class BaseReader(object):
     """Base class only. Please subclass and implement the following:
 
