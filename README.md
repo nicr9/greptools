@@ -2,10 +2,12 @@
 
 ## Installation
 
+From source:
+
 ```
-git clone https://github.com/nicr9/pygt.git
-cd pygt
-sudo python2.7 setup.py install
+git clone https://github.com/nicr9/greptools.git
+cd greptools
+sudo python2.7 setup.py develop
 ```
 
 ## About
@@ -111,6 +113,8 @@ These steps are just a rough draft for now. I will expand on them in future rele
 
 ## Author
 
-Name: Nic Roland<br>
-Twitter: @nicr9_<br>
-email: nicroland9@gmail.com
+```
+    Name: Nic Roland
+    Twitter: @nicr9_
+    Email: nicroland9@gmail.com
+```
