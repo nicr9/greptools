@@ -1,5 +1,5 @@
 from setuptools import setup
-VERSION = '0.9b'
+VERSION = '0.9b1'
 
 try:
     import subprocess

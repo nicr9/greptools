@@ -2,7 +2,13 @@
 
 ## Installation
 
-From source:
+From pip (recommended):
+
+```
+$ sudo pip install greptools
+```
+
+From source (for developers):
 
 ```
 $ git clone https://github.com/nicr9/greptools.git
@@ -73,7 +79,9 @@ of the tool you're using in place of `<greptool>` below:
 
 ### Case-insensitive search
 
-`<greptool> -i <SEARCH_TERM>`
+```
+$ <greptool> -i <SEARCH_TERM>
+```
 
 ### Debug information
 
@@ -82,7 +90,9 @@ results) that can be used to diagnose bugs in the logic at various stages.
 Useful if you're trying to develop your own greptool or add features to the base
 classes.
 
-`<greptool> -d <SEARCH_TERM>`
+```
+$ <greptool> -d <SEARCH_TERM>
+```
 
 ### Set operations
 
