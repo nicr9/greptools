@@ -3,41 +3,67 @@ import unittest
 from mock import Mock
 from tempfile import NamedTemporaryFile as TF
 
-from ..reader.reader import BraceReader, hide_method_args
+from ..reader.reader import BraceReader, replace_parens
 
 class TestReaderHelperMethods(unittest.TestCase):
-    def test_hide_method_args_succeed(self):
+    def test_replace_parens_succeed(self):
         """Example method name in Java (taken from elasticsearch).
 
         Result should replace contents of brackets with "..."."""
         code = "public boolean download(URL source, Path dest, @Nullable DownloadProgress progress, TimeValue timeout) throws Exception"
         expected = "public boolean download(...) throws Exception"
 
-        results = hide_method_args(code)
+        results = replace_parens(code)
         self.assertEqual(expected, results)
 
-    def test_hide_method_args_no_op(self):
+    def test_replace_parens_no_op(self):
         """If there are no brackets, then don't change the text."""
         code = "public class HttpDownloadHelper"
 
-        result = hide_method_args(code)
+        result = replace_parens(code)
         self.assertEqual(code, result)
 
-    def test_hide_method_args_nested(self):
+    def test_replace_parens_nested(self):
         """Assert greedy matching is used in the event of nested brackets.
 
         Substitution should replace full contents of the outer bracket pair."""
-        code = "method_name(arg1, arg_wrapper(arg2), arg3)"
+        simple = "method_name(arg1, arg_wrapper(arg2), arg3)"
         expected = "method_name(...)"
 
-        results = hide_method_args(code)
+        results = replace_parens(simple)
         self.assertEqual(expected, results)
 
-    def test_hide_method_args_incomplete(self):
+        complicated = "how(are(you(today))) my(lad)"
+        expected = "how(...) my(...)"
+
+        results = replace_parens(complicated)
+        self.assertEqual(expected, results)
+
+    def test_replace_parens_empty(self):
+        """Should work with empty parenthesis as well."""
+        simple = "method_name()"
+        expected = "method_name(...)"
+
+        results = replace_parens(simple)
+        self.assertEqual(expected, results)
+
+        nested = "method_name(arg())"
+        expected = "method_name(...)"
+
+        results = replace_parens(nested)
+        self.assertEqual(expected, results)
+
+        consecutive = "method1() method2()"
+        expected = "method1(...) method2(...)"
+
+        results = replace_parens(consecutive)
+        self.assertEqual(expected, results)
+
+    def test_replace_parens_incomplete(self):
         """Incomplete bracket pair should be ignored."""
         code = "method_name(arg1, "
 
-        results = hide_method_args(code)
+        results = replace_parens(code)
         self.assertEqual(code, results)
 
 class TestBraceReader(unittest.TestCase):

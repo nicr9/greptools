@@ -1,5 +1,5 @@
 import re
-from .reader import BraceReader, hide_method_args
+from .reader import BraceReader, replace_parens
 
 class JavaReader(BraceReader):
     """An implementation of a Reader for Java code."""
@@ -22,4 +22,4 @@ class JavaReader(BraceReader):
     def _parse_line(self, line_text):
         components = [z.strip() for z in re.split('[\n\r]', line_text)]
         reconstructed = [z for z in components if z][-1]
-        return hide_method_args(reconstructed)
+        return replace_parens(reconstructed)

@@ -46,8 +46,19 @@ def set_op(a_subtree, b_subtree, func1, func2):
 
     return _set_op(a_subtree, b_subtree, func1, func2), sum(count)
 
-def hide_method_args(text):
-    return re.sub(r'\(.*\)', '(...)', text)
+def replace_parens(text):
+    """Replaces anything wrapped in parenthesis with '(...)'.
+
+    In order to handle nested parans, it recursively replaces them with an
+    unused unicode point. When it can't find any more parens, it replaces all
+    instances of that unicode point with '(...)'."""
+    parens_re = r"\([^()]*?\)"
+
+    count = 1
+    while count:
+        text, count = re.subn(parens_re, u'\uE000', text)
+
+    return re.sub(u'\uE000', '(...)', text)
 
 class BaseReader(object):
     """Base class only. Please subclass and implement the following:
