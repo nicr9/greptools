@@ -1,4 +1,4 @@
-#!env python2.7
+#! /usr/bin/env python2.7
 import sys
 from greptools.base import GrepTools
 from greptools.reader import MarkdownReader
