@@ -16,7 +16,7 @@ setup(
         url='https://github.com/nicr9/greptools',
         download_url='https://github.com/nicr9/greptools/tarball/%s' % VERSION,
         packages=['greptools', 'greptools.reader', "greptools.test"],
-        scripts=['bin/pygt', 'bin/mdgt', 'bin/javagt'],
+        scripts=['bin/pygt', 'bin/mdgt', 'bin/javagt', 'bin/gogt'],
         install_requires=['mock'],
         test_suite="greptools.test",
         long_description=open('README.rst').read(),
