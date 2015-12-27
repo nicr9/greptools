@@ -20,4 +20,18 @@ setup(
         install_requires=['mock'],
         test_suite="greptools.test",
         long_description=open('README.rst').read(),
+        license='MIT',
+        classifiers=[
+            'Development Status :: 3 - Alpha',
+            'Environment :: Console',
+            'Intended Audience :: Developers',
+            'License :: OSI Approved :: MIT License',
+            'Natural Language :: English',
+            'Operating System :: POSIX :: Linux',
+            'Operating System :: MacOS :: MacOS X',
+            'Programming Language :: Python :: 2.7',
+            'Topic :: Software Development',
+            'Topic :: Text Processing :: Filters',
+            'Topic :: Utilities',
+            ],
         )
