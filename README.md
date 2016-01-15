@@ -5,7 +5,7 @@
 From pip (recommended):
 
 ```
-$ sudo pip install greptools
+$ sudo pip install --pre greptools
 ```
 
 From source (for developers):
