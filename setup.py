@@ -19,7 +19,7 @@ setup(
         scripts=['bin/pygt', 'bin/mdgt', 'bin/javagt', 'bin/gogt'],
         install_requires=['mock'],
         test_suite="greptools.test",
-        long_description=open('README.rst').read(),
+        long_description=open('README.md').read(),
         license='MIT',
         classifiers=[
             'Development Status :: 4 - Beta',
